@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/admin_movie.css">
+    <title>CinemaBook</title>
+</head>
+<body>
+    <header>
+        <div class="header__container">
+            <a href="index.html" class="logo">
+                <img src="img/logo.png" alt="logo" class="logo__img">
+                <h1 class="logo__title">CinemaBook</h1>
+            </a>
+            <a class="header__btn" href="admin.html">На главную панель администратора</a>
+        </div>
+    </header>
+    <main>
+        <div class="container">
+            <div class="main__title">Управление фильмами</div>
+            <div class="main__subtitle">Добавление и редактирование фильмов в системе</div>
+            <div class="movies">
+                <!--
+                <div class="movie">
+                    <div class="movie__desc">
+                        <div class="movie__title">Дюна: Часть вторая</div>
+                        <div class="movie__genres">
+                            <div class="movie__genre">Научная фантастика</div>
+                            <div class="movie__genre">Боевик</div>
+                        </div>
+                        <div class="movie__duration">166 мин</div>
+                        <div class="movie__id" style="display: none;"></div>
+                    </div>
+                    <div class="movie__buttons">
+                        <div class="movie__change_btn">Изменить</div>
+                        <div class="movie__delete_btn">Удалить</div>
+                    </div>
+                </div>
+                -->
+            </div>
+            <div class="main__btn">Добавить новый фильм</div>
+        </div>
+        <div class="overlay" style="display: none;">
+            <div class="form">
+                <div class="form__top">
+                    <div class="form__title">Введите данные о фильме</div>
+                    <img src="img/Close.png" alt="" class="form__exit">
+                </div>
+                <div id="form__movie_id" style="display: none;"></div>
+                <div class="form__subtitle">Название фильма</div>
+                <input type="text" class="form__input" id="movie_title" placeholder="Введите название фильма">
+                <div class="form__subtitle">Жанры</div>
+                <input type="text" class="form__input" id="movie_genres" placeholder="Введите жанры через запятую">
+                <div class="form__subtitle">Продолжительность</div>
+                <input type="number" class="form__input number" id="movie__duration" placeholder="160 мин" min="1">
+                <div class="form__subtitle">URL постера</div>
+                <input type="text" class="form__input" id="movie_url" placeholder="https://example.com/poster.png">
+                <div class="form__subtitle">Описание</div>
+                <textarea name="" id="movie_desc" class="form__input textarea" placeholder="Введите краткое описание фильма"></textarea>
+                <div class="form__btn" id="form__add_btn">Добавить фильм</div>
+                <div class="form__btn" id="form__change_btn">Изменить фильм</div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p class="footer__text">Разработал Красюк Артём Максимович 6403-020302D</p>
+    </footer>
+    <script src="js/admin_movie.js"></script>
+</body>
+</html>
