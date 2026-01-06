@@ -1,0 +1,378 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Inter", sans-serif;
+    color: #1F2937;
+}
+
+body{
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main{
+    flex: 1 1 auto;
+}
+
+header{
+    border-bottom: 1px solid #E1E5EA;
+}
+
+.header__container{
+    max-width: 1400px;
+    padding: 0px 15px;
+    width: 100%;
+    height: 65px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo{
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.logo__title{
+    font-size: 20px;
+    line-height: 28px;
+    font-weight: 700;
+    margin-left: 8px;
+}
+
+.logo__title a{
+    text-decoration: none;
+}
+
+.logo__img{
+    width: 36px;
+    height: 36px;
+}
+
+.header__buttons{
+    display: flex;
+    margin: 0 auto;
+    max-width: 700px;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.header__button{
+    font-size: 20px;
+    font-weight: 400;
+    padding: 11px;
+    border: 0px solid;
+    border-radius: 10px;
+    text-decoration: none;
+}
+
+.header__button:hover{
+    cursor: pointer;
+    background-color: #f2f2f2;
+}
+
+.header__registration{
+    display: flex;
+}
+
+.sign_in_btn{
+    font-size: 14px;
+    font-weight: 400;
+    padding: 11px 12px;
+    border: 0px solid;
+    border-radius: 10px;
+    text-decoration: none;
+}
+
+.sign_in_btn:hover{
+    cursor: pointer;
+    background-color: #f2f2f2;
+}
+
+.sign_up_btn{
+    font-size: 14px;
+    font-weight: 400;
+    color: #fff;
+    padding: 11px 12px;
+    border: 0px solid;
+    border-radius: 10px;
+    background-color: #3C83F6;
+    margin-left: 8px;
+    text-decoration: none;
+}
+
+.sign_up_btn:hover{
+    cursor: pointer;
+    background-color: #4a8cf7;
+}
+
+/*--------------------------main------------------------------------------*/
+
+.container{
+    max-width: 1400px;
+    padding: 0px 15px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.main__title {
+    font-weight: 700;
+    font-size: 30px;
+    margin-top: 32px;
+}
+
+.main__subtitle {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    color: #79879A;
+    margin-bottom: 32px;
+}
+
+.profile_card {
+    padding: 25px;
+    border: 1px solid #E1E5EA;
+    filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.05));
+    border-radius: 12px;
+    margin-bottom: 32px;
+}
+
+.profile_card___title_container {
+    display: flex;
+    align-items: center;
+}
+
+.profile_card__title {
+    margin-left: 8px;
+    font-weight: 600;
+    font-size: 22px;
+}   
+
+.profile_card__subtitle {
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: #79879A;
+    margin-bottom: 28px;
+}
+
+.profile_card__data_container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.profile_card__param {
+    font-weight: 600;
+    font-size: 16px;
+    margin-left: 8px;
+}
+
+.profile_card__value {
+    font-weight: 400;
+    font-size: 14px;
+    margin-left: 8px;
+}
+
+.profile_card__btn{
+    width: 200px;
+    font-weight: 400;
+    font-size: 14px;
+    padding: 12px 0px;
+    border: 0px;
+    border-radius: 10px;
+    background-color: #3C83F6;
+    color: #fff;
+}
+
+.profile_card__btn:hover{
+    cursor: pointer;
+}
+
+.changes__container {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.changes__container:first-child{
+    padding-bottom: 20px;
+    border-bottom: 1px solid #E1E5EA;
+}
+
+.changes__input_container {
+    flex: 1 1 auto;
+}
+
+.input_container__title {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.input_container__input {
+    width: 100%;
+    font-size: 14px;
+    padding: 12px 12px;
+    border: 1px solid #E1E5EA;
+    border-radius: 10px;
+}
+
+.changes__title {
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 30px;
+}
+
+.changes__submit {
+    width: 200px;
+    font-weight: 400;
+    font-size: 16px;
+    padding: 12px 0px;
+    border: 0px;
+    border-radius: 10px;
+    background-color: #3C83F6;
+    color: #fff;
+}
+
+.changes__submit:hover{
+    cursor: pointer;
+}
+
+.changes__cancel {
+    width: 100px;
+    font-weight: 400;
+    font-size: 16px;
+    padding: 12px 0px;
+    border: 1px solid #E1E5EA;
+    border-radius: 10px;
+    background-color: #fff;
+    margin-left: 10px;
+}
+
+.changes__cancel:hover{
+    cursor: pointer;
+}
+
+.hidden{
+    display: none;
+}
+
+.ticket_card{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid #E1E5EA;
+    border-radius: 12px;
+    padding: 17px;
+}
+
+.card__container{
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.card__title{
+    margin-left: 8px;
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 600;
+}
+
+.card__text{
+    margin-left: 4px;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 400;
+}
+
+.text_margin{
+    margin-left: 8px;
+}
+
+.card__row{
+    display: flex;
+}
+
+.container_margin{
+    margin-left: 16px;
+}
+
+.card__place{
+    font-weight: 600;
+    font-size: 11px;
+    padding: 3px 11px;
+    background-color: #F3F5F6;
+    border-radius: 9999px;
+    margin-left: 8px;
+}
+
+.ticket_card__right{
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    justify-content: space-between;
+}
+
+.card__price{
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 600;
+}
+
+.card__cancel{
+    font-size: 14px;
+    line-height: 20px;
+    color: #fff;
+    padding: 9px 12px;
+    background-color: #EF4343;
+    border-radius: 10px;
+    border: 0px;
+    display: block;
+}
+
+.card__download{
+    font-size: 14px;
+    line-height: 20px;
+    color: #fff;
+    padding: 9px 12px;
+    background-color: #3C83F6;
+    border-radius: 10px;
+    border: 0px;
+    display: block;
+}
+
+.clickable:hover{
+    cursor: pointer;
+}
+
+.card__status{
+    font-weight: 600;
+    font-size: 11px;
+    padding: 3px 11px;
+    background-color: #F3F5F6;
+    border-radius: 9999px;
+    margin-left: 8px;
+}
+
+/*--------------------------footer----------------------------------------*/
+
+footer{
+    height: 65px;
+    background-color: #253246;
+}
+
+.footer__text{
+    color: #fff;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 400;
+    padding-top: 22px;
+}

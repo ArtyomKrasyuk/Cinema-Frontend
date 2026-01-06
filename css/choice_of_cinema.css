@@ -1,0 +1,204 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Inter", sans-serif;
+    color: #1F2937;
+}
+
+body{
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main{
+    flex: 1 1 auto;
+    margin-bottom: 40px;
+}
+
+header{
+    border-bottom: 1px solid #E1E5EA;
+}
+
+.header__container{
+    max-width: 1400px;
+    padding: 0px 15px;
+    width: 100%;
+    height: 65px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo{
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.logo__title{
+    font-size: 20px;
+    line-height: 28px;
+    font-weight: 700;
+    margin-left: 8px;
+}
+
+.header__buttons{
+    display: flex;
+}
+
+.sign_in_btn{
+    font-size: 14px;
+    font-weight: 400;
+    padding: 11px 12px;
+    border: 0px solid;
+    border-radius: 10px;
+}
+
+.sign_in_btn:hover{
+    cursor: pointer;
+    background-color: #f2f2f2;
+}
+
+.sign_up_btn{
+    font-size: 14px;
+    font-weight: 400;
+    color: #fff;
+    padding: 11px 12px;
+    border: 0px solid;
+    border-radius: 10px;
+    background-color: #3C83F6;
+    margin-left: 8px;
+}
+
+.sign_up_btn:hover{
+    cursor: pointer;
+    background-color: #4a8cf7;
+}
+
+/*--------------------------main------------------------------------------*/
+
+.container{
+    max-width: 1400px;
+    padding: 0px 15px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.main__title{
+    padding-top: 40px;
+    font-weight: 600;
+    font-size: 30px;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.main__subtitle{
+    font-size: 16px;
+    line-height: 24px;
+    color: #79879A;
+    font-weight: 300;
+    margin-bottom: 40px;
+}
+
+.cinema{
+    width: 100%;
+    border: 1px solid #E1E5EA;
+    border-radius: 12px;
+    padding: 26px;
+    margin-bottom: 24px;
+}
+
+.cinema__title{
+    font-weight: 600;
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.cinema__container{
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.cinema__show{
+    max-width: 320px;
+    width: 100%;
+    height: 170px;
+    border: 2px solid #E1E5EA;
+    border-radius: 12px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.cinema__show:hover{
+    border-color: #4a8cf7;
+}
+
+.show__time{
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.time__text{
+    font-weight: 400;
+    font-size: 18px;
+    margin-left: 4px;
+}
+
+.show__type{
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 16px;
+    padding: 5px 11px;
+    border: 1px solid #E1E5EA;
+    border-radius: 9999px;
+    margin-bottom: 10px;
+}
+
+.show__price{
+    font-weight: 300;
+    font-size: 14px;
+    color: #79879A;
+    margin-bottom: 10px;
+}
+
+.show__btn{
+    color: #fff;
+    width: 100%;
+    text-align: center;
+    font-weight: 400;
+    font-size: 14px;
+    padding: 10px 0px;
+    background-color: #3C83F6;
+    border-radius: 10px;
+}
+
+.show__btn:hover{
+    background-color: #4a8cf7;
+    cursor: pointer;
+}
+
+/*--------------------------footer----------------------------------------*/
+
+footer{
+    height: 65px;
+    background-color: #253246;
+}
+
+.footer__text{
+    color: #fff;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 400;
+    padding-top: 22px;
+}
+

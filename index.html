@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <title>CinemaBook</title>
+</head>
+<body>
+    <header>
+        <div class="header__container">
+            <a href="index.html" class="logo">
+                <img src="img/logo.png" alt="logo" class="logo__img">
+                <h1 class="logo__title">CinemaBook</h1>
+            </a>
+            <div class="header__buttons">
+                <div class="sign_in_btn">Войти</div>
+                <div class="sign_up_btn">Регистрация</div>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="container">
+            <div class="main__text">
+                <div class="main__title">Бронируйте билеты в кино</div>
+                <div class="main__subtitle">Выбирайте фильмы, места и время сеансов в лучших кинотеатрах города</div>
+            </div>
+            <div class="genres">
+                <div class="genres__title">Жанры</div>
+                <div class="genres__container">
+                    <div class="genre active_genre">Все жанры</div>
+                    <div class="genre">Анимация</div>
+                    <div class="genre">Биография</div>
+                    <div class="genre">Боевик</div>
+                    <div class="genre">Драма</div>
+                    <div class="genre">Комедия</div>
+                </div>
+            </div>
+            <div class="date">
+                <div class="date__title">Дата</div>
+                <div class="date__container">
+                    <input type="text" class="date__value" placeholder="Все даты" id="date__value">
+                    <img src="img/calendar-blue.png" alt="" class="date__img">
+                    <div class="date__reset">Сброс</div>
+                </div>
+            </div>
+            <div class="movies">
+                <div class="movies__title"></div>
+                <div class="movies__container">
+                    <!--
+                    <div class="movie">
+                        <img class="movie__img" src="https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&w=400&q=80"></img>
+                        <div class="movie__body">
+                            <div class="movie_desc">
+                                <div class="movie__title">Дюна: Часть вторая</div>
+                                <div class="movie__genre">Научная фантастика</div>
+                                <div class="movie__duration"><img src="img/clock.png" alt=""><div class="duration__text">168 мин</div></div>
+                            </div>
+                            <div class="movie__btn">Подробнее</div>
+                        </div>
+                    </div>
+                    -->
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p class="footer__text">Разработал Красюк Артём Максимович 6403-020302D</p>
+    </footer>
+    <script src="https://unpkg.com/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+    <script src="https://unpkg.com/flatpickr@4.6.13/dist/l10n/ru.js"></script>
+    <script src="js/index.js"></script>
+</body>
+</html>

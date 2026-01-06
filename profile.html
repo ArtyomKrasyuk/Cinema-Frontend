@@ -1,0 +1,168 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/profile.css">
+    <title>BigCinema. Личный кабинет</title>
+</head>
+<body>
+    <header>
+        <div class="header__container">
+            <div href="index.html" class="logo">
+                <img src="img/movie.png" alt="logo" class="logo__img">
+                <p class="logo__title"><a href="index.html">BigCinema</a></p>
+            </div>
+            <nav class="header__buttons">
+                <a href="movies.html" class="header__button">Фильмы</a>
+                <a href="form.html" class="header__button">Добавить фильм</a>
+                <a href="news_catalog.html" class="header__button">Новости</a>
+                <a href="about_us.html" class="header__button">О сайте</a>
+            </nav>
+            <div class="header__registration">
+                <a href="sign_in.html" class="sign_in_btn">Войти</a>
+                <a href="sign_up.html" class="sign_up_btn">Регистрация</a>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="container">
+            <div class="information">
+                <h1 class="main__title">Личный кабинет</h1>
+                <p class="main__subtitle">Управление профилем и бронированиями</p>
+            </div>
+            <div class="profile_card">
+                <div class="profile_card___title_container">
+                    <img src="img/profile.png" alt="Силуэт" width="20" height="20"/>
+                    <h2 class="profile_card__title">Профиль пользователя</h2>
+                </div>
+                <p class="profile_card__subtitle">Просматривайте и редактируйте информацию профиля</p>
+                <div class="profile_card__information">
+                    <div class="profile_card__data_container">
+                        <img src="img/mini_profile.png" alt="Профиль" width="16" height="16"/>
+                        <p class="profile_card__param">Имя:</p>
+                        <p class="profile_card__value">Артём</p>
+                    </div>
+                    <div class="profile_card__data_container">
+                        <img src="img/email.png" alt="Email" width="16" height="16"/>
+                        <p class="profile_card__param">Email:</p>
+                        <p class="profile_card__value">artem@mail.com</p>
+                    </div>
+                    <button class="profile_card__btn">Редактировать профиль</button>
+                </div>
+                <form class="profile_card__changes hidden">
+                    <div class="changes__container">
+                        <div class="changes__input_container">
+                            <p class="input_container__title">Имя</p>
+                            <input type="text" class="input_container__input" value="Артём"/>
+                        </div>
+                        <div class="changes__input_container">
+                            <p class="input_container__title">Email</p>
+                            <input type="text" class="input_container__input" disabled value="artem@mail.com"/>
+                        </div>
+                    </div>
+                    <p class="changes__title">Изменить пароль</p>
+                    <div class="changes__container">
+                        <div class="changes__input_container">
+                            <p class="input_container__title">Текущий пароль</p>
+                            <input type="password" class="input_container__input" />
+                        </div>
+                        <div class="changes__input_container">
+                            <p class="input_container__title">Новый пароль</p>
+                            <input type="password" class="input_container__input" />
+                        </div>
+                        <div class="changes__input_container">
+                            <p class="input_container__title">Подтвердите пароль</p>
+                            <input type="password" class="input_container__input" />
+                        </div>
+                    </div>
+                    <button class="changes__submit">Сохранить изменения</button>
+                    <button class="changes__cancel">Отмена</button>
+                </form>
+            </div>
+            <div class="profile_card">
+                <div class="profile_card___title_container">
+                    <img src="img/calendar.png" alt="Силуэт" width="20" height="20"/>
+                    <h2 class="profile_card__title">Активные бронирования (1)</h2>
+                </div>
+                <p class="profile_card__subtitle">Ваши текущие бронирования билетов</p>
+                <div class="ticket_card">
+                    <div class="ticket_card__left">
+                        <div class="card__container">
+                            <img src="img/movie16.png" alt="Фильм" width="16" height="16"/>
+                            <h2 class="card__title">Дюна: Часть вторая</h2>
+                        </div>
+                        <div class="card__container">
+                            <img src="img/location16.png" alt="Место" width="16" height="16"/>
+                            <p class="card__text text_margin">КиноМакс Европейский, Зал 1</p>
+                        </div>
+                        <div class="card__row">
+                            <div class="card__container">
+                                <img src="img/calendar16.png" alt="Дата" width="16" height="16"/>
+                                <p class="card__text">15.12.2025</p>
+                            </div>
+                            <div class="card__container container_margin">
+                                <img src="img/time16.png" alt="Время" width="16" height="16"/>
+                                <p class="card__text">19:30</p>
+                            </div>
+                        </div>
+                        <div class="card__row">
+                             <p class="card__text">Места:</p>
+                             <div class="card__place">А-5</div> 
+                             <div class="card__place">А-6</div>
+                        </div>
+                    </div>
+                    <div class="ticket_card__right">
+                        <div class="card__price">800 ₽</div>
+                        <button class="card__cancel clickable">Отменить</button>
+                        <button class="card__download clickable">Скачать билет</button>
+                    </div>
+                </div>
+            </div>
+            <div class="profile_card">
+                <div class="profile_card___title_container">
+                    <img src="img/calendar.png" alt="Силуэт" width="20" height="20"/>
+                    <h2 class="profile_card__title">История бронирований (1)</h2>
+                </div>
+                <p class="profile_card__subtitle">Отмененные и прошедшие бронирования</p>
+                <div class="ticket_card">
+                    <div class="ticket_card__left">
+                        <div class="card__container">
+                            <img src="img/movie16.png" alt="Фильм" width="16" height="16"/>
+                            <h2 class="card__title">Дюна: Часть вторая</h2>
+                            <p class="card__status">Отменено</p>
+                        </div>
+                        <div class="card__container">
+                            <img src="img/location16.png" alt="Место" width="16" height="16"/>
+                            <p class="card__text text_margin">КиноМакс Европейский, Зал 1</p>
+                        </div>
+                        <div class="card__row">
+                            <div class="card__container">
+                                <img src="img/calendar16.png" alt="Дата" width="16" height="16"/>
+                                <p class="card__text">15.12.2025</p>
+                            </div>
+                            <div class="card__container container_margin">
+                                <img src="img/time16.png" alt="Время" width="16" height="16"/>
+                                <p class="card__text">19:30</p>
+                            </div>
+                        </div>
+                        <div class="card__row">
+                             <p class="card__text">Места:</p>
+                             <div class="card__place">А-5</div> 
+                             <div class="card__place">А-6</div>
+                        </div>
+                    </div>
+                    <div class="ticket_card__right">
+                        <div class="card__price">800 ₽</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p class="footer__text">Выполнил Красюк Артём Максимович 6403-020302D</p>
+    </footer>
+    <script src="js/profile.js"></script>
+</body>
+</html>
