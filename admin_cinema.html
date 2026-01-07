@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/admin_cinema.css">
+    <title>CinemaBook</title>
+</head>
+<body>
+    <header>
+        <div class="header__container">
+            <a href="index.html" class="logo">
+                <img src="img/logo.png" alt="logo" class="logo__img">
+                <h1 class="logo__title">CinemaBook</h1>
+            </a>
+            <a class="header__btn" href="admin.html">На главную панель администратора</a>
+        </div>
+    </header>
+    <main>
+        <div class="container">
+            <div class="main__title">Управление кинотеатрами и залами</div>
+            <div class="main__subtitle">Создание и настройка кинотеатров и их залов</div>
+            <div class="content">
+                <div class="content__forms">
+                    <div class="form">
+                        <div class="form__title">Управление кинотеатрами</div>
+                        <div class="form__container cinema__container">
+                            <!--
+                            <div class="cinema">
+                                <div class="cinema__desc">
+                                    <div class="cinema__id" style="display: none;"></div>
+                                    <div class="cinema__title">Киномакс</div>
+                                    <div class="cinema__address">ул. Самарская дом 1</div>
+                                </div>
+                                <div class="cinema__buttons">
+                                    <div class="cinema__change_btn">Изменить</div>
+                                    <div class="cinema__delete_btn">Удалить</div>
+                                </div>
+                            </div>
+                            -->
+                        </div>
+                        <div class="form__btn" id="cinema_add">Создать кинотеатр</div>
+                    </div>
+
+                    <div class="form">
+                        <div class="form__title">Управление залами</div>
+                        <div class="form__nav">
+                            <div class="nav__option nav__option_active" id="create">Создать</div>
+                            <div class="nav__option" id="change">Изменить</div>
+                            <div class="nav__option" id="delete">Удалить</div>
+                        </div>
+                        <div class="cinema_form__subtitle">Кинотеатр</div>
+                        <select id="cinema_select" class="cinema_form__input">
+                        </select>
+                        <div class="cinema_form__subtitle" id="hall_subtitle">Номер зала</div>
+                        <input type="number" class="cinema_form__input number" id="hall_input" placeholder="1" min="1">
+                        <select id="hall_select" class="cinema_form__input number" style="display: none;"></select>
+                        <div class="cinema_form__subtitle">Количество рядов</div>
+                        <input type="number" class="cinema_form__input number" id="number_of_rows" placeholder="10" min="1">
+                        <div class="cinema_form__subtitle">Мест в ряду</div>
+                        <input type="number" class="cinema_form__input number" id="number_of_seats" placeholder="12" min="1">
+                        <div class="form__btn" id="hall_add">Создать схему зала</div>
+                        <div class="form__btn" id="hall_change" style="display: none;">Показать схему зала</div>
+                        <div class="form__btn" id="hall_delete" style="display: none;">Показать схему зала</div>
+                    </div>
+                </div>
+                <div class="content__schema">
+
+                </div>
+            </div>
+        </div>
+        <div class="overlay" style="display: none;">
+            <div class="cinema_form">
+                <div class="cinema_form__top">
+                    <div class="cinema_form__title">Введите данные о кинотеатре</div>
+                    <img src="img/Close.png" alt="" class="cinema_form__exit">
+                </div>
+                <div id="cinema_form__cinema_id" style="display: none;"></div>
+                <div class="cinema_form__subtitle">Название кинотеатра</div>
+                <input type="text" class="cinema_form__input" id="cinema_form_title" placeholder="Введите название кинотеатра">
+                <div class="cinema_form__subtitle">Адрес кинотеатра</div>
+                <input type="text" class="cinema_form__input" id="cinema_form_address" placeholder="ул. Самарская дом 1">
+                <div class="cinema_form__btn" id="cinema_form__add_btn">Добавить кинотеатр</div>
+                <div class="cinema_form__btn" id="cinema_form__change_btn">Изменить кинотеатр</div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p class="footer__text">Разработал Красюк Артём Максимович 6403-020302D</p>
+    </footer>
+    <script src="js/admin_cinema.js"></script>
+</body>
+</html>
