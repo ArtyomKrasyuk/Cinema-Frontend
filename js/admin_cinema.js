@@ -17,6 +17,22 @@ class Cinema{
     }
 }
 
+class HallRequest{
+    constructor(cinemaId, number, seats){
+        this.cinemaId = cinemaId;
+        this.number = number;
+        this.seats = seats;
+    }
+}
+
+class SeatRequest{
+    constructor(row, number, type){
+        this.row = row,
+        this.number = number,
+        this.type = type
+    }
+}
+
 let cinemas = [
     new Cinema(1, 'Киномакс', 'ул. Самарская дом 1', [new Hall(1, 1, []), new Hall(2, 2, []), new Hall(3, 3, []), new Hall(4, 4, [])]),
     new Cinema(2, 'Киномакс', 'ул. Самарская дом 1', [new Hall(5, 1, []), new Hall(6, 2, []), new Hall(7, 3, [])]),
@@ -32,6 +48,10 @@ let formChange = document.getElementById('cinema_form__change_btn');
 let formId = document.getElementById('cinema_form__cinema_id');
 let formCinemaTitle = document.getElementById('cinema_form_title');
 let formCinemaAddress = document.getElementById('cinema_form_address');
+
+let optionSwitch = 'green';
+
+let newHall = null;
 
 addCinema.onclick = function(e){
     formId.innerHTML = '';
@@ -155,6 +175,86 @@ function setNav(){
 
          if(parseInt(select.value) != -1) setHalls();
     }
+}
+
+document.querySelectorAll('.option').forEach(option => {
+    option.onclick = function(e){
+        document.querySelector('.active_option').classList.toggle('active_option');
+        e.currentTarget.classList.toggle('active_option');
+        if(e.currentTarget.querySelector('.option__color').classList.contains('green')) optionSwitch = 'green';
+        else if(e.currentTarget.querySelector('.option__color').classList.contains('orange')) optionSwitch = 'orange';
+        else optionSwitch = 'purple';
+    }
+});
+
+document.getElementById('hall_add').onclick = function(e){
+    let hallNumber = document.getElementById('hall_input').value;
+    let numberOfRows = document.getElementById('number_of_rows').value;
+    let numberOfSeats = document.getElementById('number_of_seats').value;
+    if(document.getElementById('cinema_select').value == -1){
+        alert('Необходимо выбрать кинотеатр');
+        return;
+    }
+    if(hallNumber == '' || parseInt(hallNumber) <= 0){
+        alert('Номер зала должен быть числом, большим 0');
+        return;
+    }
+    if(numberOfRows == '' || parseInt(numberOfRows) <= 0){
+        alert('Количество рядов должно быть числом, большим 0');
+        return;
+    }
+    if(numberOfSeats == '' || parseInt(numberOfSeats) <= 0){
+        alert('Количество мест должно быть числом, большим 0');
+        return;
+    }
+    numberOfRows = parseInt(numberOfRows);
+    numberOfSeats = parseInt(numberOfSeats);
+    document.getElementById('hall__number').innerHTML = `Редактор зала: Зал ${hallNumber}`;
+
+    let hall = document.querySelector('.hall');
+    hall.innerHTML = '';
+    hall.insertAdjacentHTML('beforeend', '<div class="hall__screen">ЭКРАН</div>');
+
+    let newSeats = [];
+
+    for(let row = 0; row < numberOfRows; row++){
+        let str = 
+        `
+        <div class="hall__row">
+            <div class="row__number">${row + 1}</div>
+        `;
+        for(let seat = 0; seat < numberOfSeats; seat++){
+            str +=
+            `
+            <div class="row__seat green" data-number="${seat+1}" data-row="${row+1}" data-tooltip="Ряд ${row+1}, место ${seat+1}"></div>
+            `;
+            newSeats.push(new SeatRequest(row+1, seat+1, 'Обычное'));
+        }
+        str += '</div>';
+        hall.insertAdjacentHTML('beforeend', str);
+    }
+
+    newHall = new HallRequest(document.getElementById('cinema_select').value, hallNumber, newSeats);
+
+    document.querySelectorAll('.row__seat').forEach(seat =>{
+        seat.onclick = function(e){
+            e.currentTarget.className = `row__seat ${optionSwitch}`;
+            let row = e.currentTarget.dataset.row;
+            let number = e.currentTarget.dataset.number;
+            let type = 'Обычное';
+            if(optionSwitch == 'orange') type = 'Эконом';
+            else if(optionSwitch == 'purple') type = 'VIP';
+
+            for(let key in newHall.seats){
+                if(newHall.seats[key].number == number && newHall.seats[key].row == row){
+                    newHall.seats[key].type = type;
+                    break;
+                }
+            }
+        }
+    });
+
+    document.querySelector('.content__schema').style.display = 'block';
 }
 
 setCinemas();
