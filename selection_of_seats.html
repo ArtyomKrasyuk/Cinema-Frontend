@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/selection_of_seats.css">
+    <title>CinemaBook</title>
+</head>
+<body>
+    <header>
+        <div class="header__container">
+            <a href="index.html" class="logo">
+                <img src="img/logo.png" alt="logo" class="logo__img">
+                <h1 class="logo__title">CinemaBook</h1>
+            </a>
+            <div class="header__buttons">
+                <div class="sign_in_btn">Войти</div>
+                <div class="sign_up_btn">Регистрация</div>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="container">
+            <div class="main__title">Выберите места</div>
+            <div class="main__subtitle">Кинотеатр Галерея • 19:00 • 3D</div>
+            <div class="content">
+                <div class="hall_form form">
+                    <div class="hall_form__text">Экран</div>
+                    <div class="hall">
+                        <div class="hall__element">
+                            <div class="row_number">1</div>
+                            <div class="row">
+                                <div class="row__seat" data-id="1" data-booked="false">1</div>
+                                <div class="row__seat" data-id="1" data-booked="false">2</div>
+                                <div class="row__seat" data-id="1" data-booked="false">3</div>
+                                <div class="row__seat selected" data-id="1" data-booked="false">4</div>
+                                <div class="row__seat" data-id="1" data-booked="false">5</div>
+                                <div class="row__seat booked" data-id="1" data-booked="true">6</div>
+                                <div class="row__seat" data-id="1" data-booked="false">7</div>
+                                <div class="row__seat" data-id="1" data-booked="false">8</div>
+                                <div class="row__seat" data-id="1" data-booked="false">9</div>
+                                <div class="row__seat" data-id="1" data-booked="false">10</div>
+                                <div class="row__seat" data-id="1" data-booked="false">11</div>
+                                <div class="row__seat" data-id="1" data-booked="false">12</div>
+                            </div>
+                            <div class="row_number">1</div>
+                        </div>
+                        <div class="hall__element">
+                            <div class="row_number">2</div>
+                            <div class="row">
+                                <div class="row__seat" data-id="1" data-booked="false">1</div>
+                                <div class="row__seat" data-id="1" data-booked="false">2</div>
+                                <div class="row__seat booked" data-id="1" data-booked="true">3</div>
+                                <div class="row__seat" data-id="1" data-booked="false">4</div>
+                                <div class="row__seat" data-id="1" data-booked="false">5</div>
+                                <div class="row__seat" data-id="1" data-booked="false">6</div>
+                                <div class="row__seat" data-id="1" data-booked="false">7</div>
+                                <div class="row__seat" data-id="1" data-booked="false">8</div>
+                                <div class="row__seat selected" data-id="1" data-booked="false">9</div>
+                                <div class="row__seat" data-id="1" data-booked="false">10</div>
+                                <div class="row__seat" data-id="1" data-booked="false">11</div>
+                                <div class="row__seat" data-id="1" data-booked="false">12</div>
+                            </div>
+                            <div class="row_number">2</div>
+                        </div>
+                    </div>
+                    <div class="hall_form__description">
+                        <div class="description__elem">
+                            <div class="description__color"></div>
+                            <div class="description__text">Свободно</div>
+                        </div>
+                        <div class="description__elem">
+                            <div class="description__color selected"></div>
+                            <div class="description__text">Выбрано</div>
+                        </div>
+                        <div class="description__elem">
+                            <div class="description__color booked"></div>
+                            <div class="description__text">Занято</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="order_form form">
+                    <div class="order_form__title">Ваш заказ</div>
+                    <div class="no_seats_text" style="display: none;">Выберите места для продолжения</div>
+                    <div class="order_from__content">
+                        <div class="selected_seats">
+                            <div class="form_subtitle">Выбранные места:</div>
+                            <div class="selected_seats__container">
+                                <div class="selected_seat">Ряд 1, место 4</div>
+                                <div class="selected_seat">Ряд 2, место 9</div>
+                            </div>
+                        </div>
+                        <div class="form_subtitle">Билеты (2 шт.)</div>
+                        <div class="form__price">
+                            <div class="price__text">Итого:</div>
+                            <div class="price__text">900 ₽</div>
+                        </div>
+                        <div class="form__btn">Забронировать</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p class="footer__text">Разработал Красюк Артём Максимович 6403-020302D</p>
+    </footer>
+    <script src="js/selection_of_seats.js"></script>
+</body>
+</html>
+
+
+

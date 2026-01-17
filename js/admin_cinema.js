@@ -68,7 +68,9 @@ exit.onclick = function(e){
 
 function setCinemas(){
     let container = document.querySelector('.cinema__container');
+    container.innerHTML = '';
     let select = document.getElementById('cinema_select');
+    select.innerHTML = '';
     select.insertAdjacentHTML('beforeend', '<option disabled selected value="-1">Выберите кинотеатр</option>');
 
     cinemas.forEach(cinema =>{
