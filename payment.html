@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/payment.css">
+    <title>CinemaBook</title>
+</head>
+<body>
+    <header>
+        <div class="header__container">
+            <a href="index.html" class="logo">
+                <img src="img/logo.png" alt="logo" class="logo__img">
+                <h1 class="logo__title">CinemaBook</h1>
+            </a>
+            <div class="header__buttons">
+                <div class="sign_in_btn">Войти</div>
+                <div class="sign_up_btn">Регистрация</div>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="container">
+            <div class="main__title">Завершение бронирования</div>
+            <div class="main__subtitle">Осталось ввести данные для оплаты</div>
+            <div class="content">
+                <div class="payment form">
+                    <div class="form__title">Данные для оплаты</div>
+                    <div class="form__label">Номер карты</div>
+                    <input type="text" class="form__input">
+                    <div class="form__flex_container">
+                        <div>
+                            <div class="form__label">Срок</div>
+                            <input type="text" class="form__input short_input">
+                        </div>
+                        <div>
+                            <div class="form__label">Код</div>
+                            <input type="text" class="form__input short_input">
+                        </div>
+                    </div>
+                    <div class="form__btn">Подтвердить оплату</div>
+                </div>
+                <div class="details form">
+                    <div class="form__title">Детали заказа</div>
+                    <div class="form__subtitle">Фильм</div>
+                    <div class="form__text" id="movie">Дюна: Часть вторая</div>
+                    <div class="form__subtitle">Кинотеатр</div>
+                    <div class="form__text" id="cimema">Кинотеатр Галерея</div>
+                    <div class="form__subtitle">Сеанс</div>
+                    <div class="form__text" id="datetime">18.01.2026, 19:00 (3D)</div>
+                    <div class="form__selected_seats">
+                        <div class="form__subtitle">Места</div>
+                        <div class="selected_seats__container">
+                            <div class="selected_seat">Ряд 1, место 4</div>
+                            <div class="selected_seat">Ряд 2, место 9</div>
+                        </div>
+                    </div>
+                    <div class="form__price">
+                        <div class="price__text">К оплате:</div>
+                        <div class="price__text">1000 ₽</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p class="footer__text">Разработал Красюк Артём Максимович 6403-020302D</p>
+    </footer>
+    <script src="js/payment.js"></script>
+</body>
+</html>
