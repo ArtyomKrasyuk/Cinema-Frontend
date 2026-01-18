@@ -171,6 +171,7 @@ header{
     height: 32px;
     border: 2px solid #E1E5EA;
     border-radius: 4px;
+    color: #fff;
     font-weight: 400;
     font-size: 12px;
     display: flex;
@@ -294,6 +295,18 @@ header{
 .form__btn:hover{
     cursor: pointer;
     background-color: #4a8cf7;
+}
+
+.green{
+    background-color: #10B981;
+}
+
+.orange{
+    background-color: #F59E0B;
+}
+
+.purple{
+    background-color: #8B5CF6;
 }
 
 /*--------------------------footer----------------------------------------*/
