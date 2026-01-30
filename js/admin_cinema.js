@@ -17,6 +17,14 @@ class Cinema{
     }
 }
 
+class HallWithoutSeats{
+    constructor(hallId, cinemaId, number){
+        this.hallId = hallId;
+        this.cinemaId = cinemaId;
+        this.number = number;
+    }
+}
+
 class HallRequest{
     constructor(cinemaId, number, seats){
         this.cinemaId = cinemaId;
@@ -33,12 +41,7 @@ class SeatRequest{
     }
 }
 
-let cinemas = [
-    new Cinema(1, 'Киномакс', 'ул. Самарская дом 1', [new Hall(1, 1, []), new Hall(2, 2, []), new Hall(3, 3, []), new Hall(4, 4, [])]),
-    new Cinema(2, 'Киномакс', 'ул. Самарская дом 1', [new Hall(5, 1, []), new Hall(6, 2, []), new Hall(7, 3, [])]),
-    new Cinema(3, 'Киномакс', 'ул. Самарская дом 1', [new Hall(8, 1, []), new Hall(9, 2, [])]),
-    new Cinema(4, 'Киномакс', 'ул. Самарская дом 1', [new Hall(10, 1, [])])
-]
+let cinemas = []
 
 let addCinema = document.getElementById('cinema_add');
 let overlay = document.querySelector('.overlay');
@@ -64,6 +67,78 @@ addCinema.onclick = function(e){
 
 exit.onclick = function(e){
     overlay.style.display = 'none';
+}
+
+async function getCinemas(){
+    let url = 'http://127.0.0.1:44249/api/cinemas';
+    let response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        credentials: 'include'
+    });
+    if(response.ok){
+        let body = await response.text();
+        let json = JSON.parse(body);
+        cinemas = [];
+        json.forEach(cinema => {
+            let hallsWithoutSeats = []
+            cinema.halls.forEach(hall => {
+                let hallWithoutSeats = new HallWithoutSeats(
+                    parseInt(hall.hallId),
+                    parseInt(hall.cinemaId),
+                    parseInt(hall.number)
+                );
+                hallsWithoutSeats.push(hallWithoutSeats);
+            });
+            cinemas.push(new Cinema(
+                parseInt(cinema.cinemaId),
+                cinema.title,
+                cinema.address,
+                hallsWithoutSeats
+            ));
+        });
+
+        setCinemas();
+    }
+    else alert('Ошибка получения кинотеатров');
+}
+
+async function saveCinema() {
+    let data = {'title': formCinemaTitle.value, 'address': formCinemaAddress.value};
+    let url = 'http://localhost:44249/api/cinemas';
+    let response = await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        }
+    });
+    if(response.ok) {
+        alert('Успешно');
+        overlay.style.display = 'none';
+        getCinemas();
+    }
+    else alert('Ошибка при добавлении кинотеатра');
+}
+
+async function changeCinema() {
+    let data = {'title': formCinemaTitle.value, 'address': formCinemaAddress.value};
+    let url = `http://localhost:44249/api/cinemas/${formId.innerHTML}`;
+    let response = await fetch(url, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        }
+    });
+    if(response.ok) {
+        alert('Успешно');
+        overlay.style.display = 'none';
+        getCinemas();
+    }
+    else alert('Ошибка при редактировании кинотеатра');
 }
 
 function setCinemas(){
@@ -97,10 +172,14 @@ function setCinemas(){
 }
 
 function setButtons(){
-    let buttons = document.querySelectorAll('.cinema__change_btn');
-    buttons.forEach(button =>{
+    document.querySelectorAll('.cinema__change_btn').forEach(button =>{
         button.onclick = setChangeButton;
     });
+    document.querySelectorAll('.cinema__delete_btn').forEach(button =>{
+        button.onclick = deleteCinema;
+    });
+    formAdd.onclick = saveCinema;
+    formChange.onclick = changeCinema;
 }
 
 function setChangeButton(e){
@@ -110,6 +189,22 @@ function setChangeButton(e){
     formAdd.style.display = 'none';
     formChange.style.display = 'block';
     overlay.style.display = 'block';
+}
+
+async function deleteCinema(e){
+    let id = e.currentTarget.parentElement.parentElement.querySelector('.cinema__id').innerHTML;
+    let url = `http://localhost:44249/api/cinemas/${id}`;
+    let response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        }
+    });
+    if(response.ok) {
+        alert('Успешно');
+        getCinemas();
+    }
+    else alert('Ошибка при удалении кинотеатра');
 }
 
 function setHalls(e){
@@ -146,6 +241,11 @@ function setNav(){
         document.getElementById('hall_add').style.display = 'block';
         document.getElementById('hall_change').style.display = 'none';
         document.getElementById('hall_delete').style.display = 'none';
+
+        document.getElementById('number_of_rows_subtitle').style.display = 'block';
+        document.getElementById('number_of_rows').style.display = 'block';
+        document.getElementById('number_of_seats_subtitle').style.display = 'block';
+        document.getElementById('number_of_seats').style.display = 'block';
     }
 
     changeBtn.onclick = function(e){
@@ -159,6 +259,11 @@ function setNav(){
         document.getElementById('hall_add').style.display = 'none';
         document.getElementById('hall_change').style.display = 'block';
         document.getElementById('hall_delete').style.display = 'none';
+
+        document.getElementById('number_of_rows_subtitle').style.display = 'none';
+        document.getElementById('number_of_rows').style.display = 'none';
+        document.getElementById('number_of_seats_subtitle').style.display = 'none';
+        document.getElementById('number_of_seats').style.display = 'none';
         
         if(parseInt(select.value) != -1) setHalls();
     }
@@ -174,6 +279,11 @@ function setNav(){
         document.getElementById('hall_add').style.display = 'none';
         document.getElementById('hall_change').style.display = 'none';
         document.getElementById('hall_delete').style.display = 'block';
+
+        document.getElementById('number_of_rows_subtitle').style.display = 'none';
+        document.getElementById('number_of_rows').style.display = 'none';
+        document.getElementById('number_of_seats_subtitle').style.display = 'none';
+        document.getElementById('number_of_seats').style.display = 'none';
 
          if(parseInt(select.value) != -1) setHalls();
     }
@@ -259,5 +369,5 @@ document.getElementById('hall_add').onclick = function(e){
     document.querySelector('.content__schema').style.display = 'block';
 }
 
-setCinemas();
+getCinemas();
 setNav();
