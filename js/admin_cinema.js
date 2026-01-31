@@ -71,6 +71,10 @@ exit.onclick = function(e){
     overlay.style.display = 'none';
 }
 
+document.getElementById('hall_btn').onclick = saveHall;
+document.getElementById('hall_change_btn').onclick = updateHall;
+document.getElementById('hall_delete_btn').onclick = deleteHall;
+
 async function getCinemas(){
     let url = `http://127.0.0.1:${port}/api/cinemas`;
     let response = await fetch(url, {
@@ -248,6 +252,8 @@ function setNav(){
         document.getElementById('number_of_rows').style.display = 'block';
         document.getElementById('number_of_seats_subtitle').style.display = 'block';
         document.getElementById('number_of_seats').style.display = 'block';
+
+        document.querySelector('.content__schema').style.display = 'none';
     }
 
     changeBtn.onclick = function(e){
@@ -266,6 +272,8 @@ function setNav(){
         document.getElementById('number_of_rows').style.display = 'none';
         document.getElementById('number_of_seats_subtitle').style.display = 'none';
         document.getElementById('number_of_seats').style.display = 'none';
+
+        document.querySelector('.content__schema').style.display = 'none';
         
         if(parseInt(select.value) != -1) setHalls();
     }
@@ -286,6 +294,8 @@ function setNav(){
         document.getElementById('number_of_rows').style.display = 'none';
         document.getElementById('number_of_seats_subtitle').style.display = 'none';
         document.getElementById('number_of_seats').style.display = 'none';
+
+        document.querySelector('.content__schema').style.display = 'none';
 
          if(parseInt(select.value) != -1) setHalls();
     }
@@ -368,7 +378,168 @@ document.getElementById('hall_add').onclick = function(e){
         }
     });
 
+    document.getElementById('hall_btn').style.display = 'block';
+    document.getElementById('hall_change_btn').style.display = 'none';
+    document.getElementById('hall_delete_btn').style.display = 'none';
+
     document.querySelector('.content__schema').style.display = 'block';
+}
+
+document.getElementById('hall_change').onclick = getHall;
+document.getElementById('hall_delete').onclick = getHall;
+
+async function getHall(e){
+    let deleteFlag = e.currentTarget.id == 'hall_delete' ? true : false;
+    let hallId = document.getElementById('hall_select').value;
+    let url = `http://127.0.0.1:${port}/api/halls/${hallId}`;
+    let response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        credentials: 'include'
+    });
+    if(response.ok){
+        let body = await response.text();
+        let json = JSON.parse(body);
+        let seats = [];
+        json.seats.forEach(seat => {
+            seats.push(new SeatRequest(seat.row, seat.number, seat.type));
+        });
+        seats.sort((a, b) => a.row - b.row || a.number - b.number);
+        newHall = new HallRequest(json.cinemaId, json.number, seats);
+        createSchema(deleteFlag);
+    }
+    else alert('Ошибка получения кинозала');
+}
+
+function createSchema(deleteFlag){
+    let hall = document.querySelector('.hall');
+    hall.innerHTML = '';
+    hall.insertAdjacentHTML('beforeend', '<div class="hall__screen">ЭКРАН</div>');
+
+    document.getElementById('hall__number').innerHTML = `Редактор зала: Зал ${newHall.number}`;
+
+    const seatsByRow = {};
+    
+    newHall.seats.forEach(seat => {
+        if (!seatsByRow[seat.row]) {
+            seatsByRow[seat.row] = [];
+        }
+        seatsByRow[seat.row].push(seat);
+    });
+    
+    const rowNumbers = Object.keys(seatsByRow).map(Number).sort((a, b) => a - b);
+
+    rowNumbers.forEach(row =>{
+        let str = 
+        `
+        <div class="hall__row">
+            <div class="row__number">${row}</div>
+        `;
+        seatsByRow[row].forEach(seat => {
+            let seatClass = '';
+            switch(seat.type) {
+                case 'Эконом':
+                    seatClass = ' orange';
+                    break;
+                case 'Обычное':
+                    seatClass = ' green';
+                    break;
+                case 'VIP':
+                    seatClass = ' purple';
+                    break;
+                default:
+                    seatClass = ' green';
+            }
+            str +=
+            `
+            <div class="row__seat ${seatClass}" data-number="${seat.number}" data-row="${row}" data-tooltip="Ряд ${row}, место ${seat.number}"></div>
+            `;           
+        });
+        str += '</div>';
+        hall.insertAdjacentHTML('beforeend', str);
+    });
+
+    if(!deleteFlag){
+        document.querySelectorAll('.row__seat').forEach(seat =>{
+            seat.onclick = function(e){
+                e.currentTarget.className = `row__seat ${optionSwitch}`;
+                let row = e.currentTarget.dataset.row;
+                let number = e.currentTarget.dataset.number;
+                let type = 'Обычное';
+                if(optionSwitch == 'orange') type = 'Эконом';
+                else if(optionSwitch == 'purple') type = 'VIP';
+
+                for(let key in newHall.seats){
+                    if(newHall.seats[key].number == number && newHall.seats[key].row == row){
+                        newHall.seats[key].type = type;
+                        break;
+                    }
+                }
+            }
+        });
+    }
+
+    document.getElementById('hall_btn').style.display = 'none';
+    if(deleteFlag) {
+        document.getElementById('hall_change_btn').style.display = 'none';
+        document.getElementById('hall_delete_btn').style.display = 'block';
+    }
+    else{
+        document.getElementById('hall_change_btn').style.display = 'block';
+        document.getElementById('hall_delete_btn').style.display = 'none';
+    }
+
+    document.querySelector('.content__schema').style.display = 'block';
+}
+
+async function saveHall(){
+    let url = `http://localhost:${port}/api/halls`;
+    let response = await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(newHall),
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        }
+    });
+    if(response.ok) {
+        alert('Успешно');
+        getCinemas();
+    }
+    else alert('Ошибка при добавлении кинозала');
+}
+
+async function updateHall(){
+    let hallId = document.getElementById('hall_select').value;
+    let url = `http://localhost:${port}/api/halls/${hallId}`;
+    let response = await fetch(url, {
+        method: 'PUT',
+        body: JSON.stringify(newHall),
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        }
+    });
+    if(response.ok) {
+        alert('Успешно');
+    }
+    else alert('Ошибка при изменении кинозала');
+}
+
+async function deleteHall(){
+    let hallId = document.getElementById('hall_select').value;
+    let url = `http://localhost:${port}/api/halls/${hallId}`;
+    let response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        }
+    });
+    if(response.ok) {
+        alert('Успешно');
+        getCinemas();
+    }
+    else alert('Ошибка при удалении кинозала');
 }
 
 getCinemas();
