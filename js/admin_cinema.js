@@ -43,6 +43,8 @@ class SeatRequest{
 
 let cinemas = []
 
+let port = 44249;
+
 let addCinema = document.getElementById('cinema_add');
 let overlay = document.querySelector('.overlay');
 let exit = document.querySelector('.cinema_form__exit');
@@ -70,7 +72,7 @@ exit.onclick = function(e){
 }
 
 async function getCinemas(){
-    let url = 'http://127.0.0.1:44249/api/cinemas';
+    let url = `http://127.0.0.1:${port}/api/cinemas`;
     let response = await fetch(url, {
         method: 'GET',
         headers: {
@@ -107,7 +109,7 @@ async function getCinemas(){
 
 async function saveCinema() {
     let data = {'title': formCinemaTitle.value, 'address': formCinemaAddress.value};
-    let url = 'http://localhost:44249/api/cinemas';
+    let url = `http://localhost:${port}/api/cinemas`;
     let response = await fetch(url, {
         method: 'POST',
         body: JSON.stringify(data),
@@ -125,7 +127,7 @@ async function saveCinema() {
 
 async function changeCinema() {
     let data = {'title': formCinemaTitle.value, 'address': formCinemaAddress.value};
-    let url = `http://localhost:44249/api/cinemas/${formId.innerHTML}`;
+    let url = `http://localhost:${port}/api/cinemas/${formId.innerHTML}`;
     let response = await fetch(url, {
         method: 'PUT',
         body: JSON.stringify(data),
@@ -193,7 +195,7 @@ function setChangeButton(e){
 
 async function deleteCinema(e){
     let id = e.currentTarget.parentElement.parentElement.querySelector('.cinema__id').innerHTML;
-    let url = `http://localhost:44249/api/cinemas/${id}`;
+    let url = `http://localhost:${port}/api/cinemas/${id}`;
     let response = await fetch(url, {
         method: 'DELETE',
         headers: {
