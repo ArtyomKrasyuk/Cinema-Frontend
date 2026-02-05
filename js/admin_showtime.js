@@ -1,14 +1,13 @@
 'use strict'
 
 class Showtime{
-    constructor(showtimeId, movieTitle, cinema, hallNumber, date, time, price){
+    constructor(showtimeId, cinema, hallId, movieTitle, time, basePrince){
         this.showtimeId = showtimeId;
-        this.movieTitle = movieTitle;
         this.cinema = cinema;
-        this.hallNumber = hallNumber;
-        this.date = date;
+        this.hallId = hallId;
+        this.movieTitle = movieTitle;
         this.time = time;
-        this.price = price;
+        this.basePrince = basePrince;
     }
 }
 
@@ -21,25 +20,20 @@ class Cinema{
     }
 }
 
-class Hall{
-    constructor(hallId, number, seats){
+class HallWithoutSeats{
+    constructor(hallId, cinemaId, number){
         this.hallId = hallId;
+        this.cinemaId = cinemaId;
         this.number = number;
-        this.seats = seats;
     }
 }
 
-let cinemas = [
-    new Cinema(1, 'Киномакс', 'ул. Самарская дом 1', [new Hall(1, 1, []), new Hall(2, 2, []), new Hall(3, 3, []), new Hall(4, 4, [])]),
-    new Cinema(2, 'Киномакс', 'ул. Самарская дом 1', [new Hall(5, 1, []), new Hall(6, 2, []), new Hall(7, 3, [])]),
-    new Cinema(3, 'Киномакс', 'ул. Самарская дом 1', [new Hall(8, 1, []), new Hall(9, 2, [])]),
-    new Cinema(4, 'Киномакс', 'ул. Самарская дом 1', [new Hall(10, 1, [])])
-]
+let port = 44249;
 
-let showtimes = [
-    new Showtime(1, "Дюна: Часть вторая", cinemas[0], 1, "2026-01-16", "20:00", 650),
-    new Showtime(2, "Дюна: Часть вторая", cinemas[1], 2, "2026-01-16", "20:00", 550)
-];
+let cinemas = [];
+
+let showtimes = [];
+
 
 let add = document.querySelector('.main__btn');
 let overlay = document.querySelector('.overlay');
@@ -75,11 +69,99 @@ exit.onclick = function(e){
     overlay.style.display = 'none';
 }
 
+async function entrypoint() {
+    getCinemas();
+    setButtons();
+}
+
+async function getCinemas(){
+    let url = `http://127.0.0.1:${port}/api/cinemas`;
+    let response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        credentials: 'include'
+    });
+    if(response.ok){
+        let body = await response.text();
+        let json = JSON.parse(body);
+        cinemas = [];
+        json.forEach(cinema => {
+            let hallsWithoutSeats = []
+            cinema.halls.forEach(hall => {
+                let hallWithoutSeats = new HallWithoutSeats(
+                    parseInt(hall.hallId),
+                    parseInt(hall.cinemaId),
+                    parseInt(hall.number)
+                );
+                hallsWithoutSeats.push(hallWithoutSeats);
+            });
+            cinemas.push(new Cinema(
+                parseInt(cinema.cinemaId),
+                cinema.title,
+                cinema.address,
+                hallsWithoutSeats
+            ));
+        });
+
+        setCinemas();
+    }
+    else alert('Ошибка получения кинотеатров');
+}
+
+async function getShowtimes(){
+    let url = `http://127.0.0.1:${port}/api/showtimes`;
+    let response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        credentials: 'include'
+    });
+    if(response.ok){
+        let body = await response.text();
+        let json = JSON.parse(body);
+        showtimes = [];
+        json.forEach(showtime => {
+            let hallsWithoutSeats = []
+            showtime.cinema.halls.forEach(hall => {
+                let hallWithoutSeats = new HallWithoutSeats(
+                    parseInt(hall.hallId),
+                    parseInt(hall.cinemaId),
+                    parseInt(hall.number)
+                );
+                hallsWithoutSeats.push(hallWithoutSeats);
+            });
+            let cinema = new Cinema(
+                parseInt(showtime.cinema.cinemaId),
+                showtime.cinema.title,
+                showtime.cinema.address,
+                hallsWithoutSeats
+            );
+            showtimes.push(
+                new Showtime(
+                    parseInt(showtime.showtimeId),
+                    cinema,
+                    parseInt(showtime.hallId),
+                    showtime.movieTitle,
+                    showtime.time,
+                    parseInt(showtime.basePrice)
+                )
+            );
+        });
+
+        setShowtimes();
+    }
+    else alert('Ошибка получения киносеансов');
+}
+
 function setShowtimes(){
     let container = document.querySelector('.showtimes');
     container.innerHTML = '';
     showtimes.forEach(showtime => {
-        const [year, month, day] = showtime.date.split('-');
+        const[date, time] = showtime.time.split(' ');
+        const [year, month, day] = date.split('-');
         let str = 
         `
         <div class="showtime">
@@ -88,7 +170,7 @@ function setShowtimes(){
                 <div class="showtime__cinema">${showtime.cinema.title}, ${showtime.cinema.address}</div>
                 <div class="showtime__datetime">
                     <div class="showtime__date datetime">${day}.${month}.${year}</div>
-                    <div class="showtime__time datetime">${showtime.time}</div>
+                    <div class="showtime__time datetime">${time.substring(0, 5)}</div>
                 </div>
                 <div class="showtime__id" style="display: none;">${showtime.showtimeId}</div>
             </div>
@@ -101,8 +183,7 @@ function setShowtimes(){
 
         container.insertAdjacentHTML('beforeend', str);
     });
-    
-    setCinemas();
+
     setButtons();
 }
 
@@ -116,6 +197,8 @@ function setCinemas(){
     });
 
     select.onchange = setHalls;
+
+    getShowtimes();
 }
 
 function setHalls(e){
@@ -133,11 +216,14 @@ function setHalls(e){
 }
 
 function setButtons(){
-    let buttons = document.querySelectorAll('.showtime__change_btn');
-
-    buttons.forEach(button =>{
+    document.querySelectorAll('.showtime__change_btn').forEach(button =>{
         button.onclick = setChangeButton;
     });
+    document.querySelectorAll('.showtime__delete_btn').forEach(button =>{
+        button.onclick = setDeleteButton;
+    });
+    formAdd.onclick = saveShowtime;
+    formChange.onclick = updateShowtime;
 }
 
 function setChangeButton(e){
@@ -152,9 +238,10 @@ function setChangeButton(e){
             for(let j = 0; j < showtimes[i].cinema.halls.length; j++){
                 if(showtimes[i].cinema.halls[j].number == showtimes[i].hallNumber) hallSelect.value = showtimes[i].cinema.halls[j].hallId;
             }
-            dateInput.value = showtimes[i].date;
-            timeInput.value = showtimes[i].time;
-            priceInput.value = showtimes[i].price;
+            const[date, time] = showtimes[i].time.split(' ');
+            dateInput.value = date;
+            timeInput.value = time.substring(0, 5);
+            priceInput.value = showtimes[i].basePrince;
             break;
         }
     }
@@ -164,5 +251,91 @@ function setChangeButton(e){
     overlay.style.display = 'block';
 }
 
-setShowtimes();
+async function saveShowtime() {
+    if(!isInt(priceInput.value)){
+        alert('Базовая стоимость должна быть положительным числом');
+        return;
+    }
+    let basePrice = parseInt(priceInput.value);
+    if(basePrice <= 0){
+        alert('Базовая стоимость должна быть положительным числом');
+        return;
+    }
+    let data = {
+        'movieTitle': movieTitleInput.value,
+        'hallId': hallSelect.value,
+        'time': `${dateInput.value} ${timeInput.value}:00`,
+        'basePrice': basePrice,
+    };
+    console.log(data);
+    let url = `http://localhost:${port}/api/showtimes`;
+    let response = await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        }
+    });
+    if(response.ok) {
+        alert('Успешно');
+        overlay.style.display = 'none';
+        getShowtimes();
+    }
+    else alert('Ошибка при добавлении сеанса');
+}
+
+async function updateShowtime() {
+    if(!isInt(priceInput.value)){
+        alert('Базовая стоимость должна быть положительным числом');
+        return;
+    }
+    let basePrice = parseInt(priceInput.value);
+    if(basePrice <= 0){
+        alert('Базовая стоимость должна быть положительным числом');
+        return;
+    }
+    let data = {
+        'movieTitle': movieTitleInput.value,
+        'hallId': hallSelect.value,
+        'time': `${dateInput.value} ${timeInput.value}:00`,
+        'basePrice': basePrice,
+    };
+    console.log(data);
+    let url = `http://localhost:${port}/api/showtimes/${formId.innerHTML}`;
+    let response = await fetch(url, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        }
+    });
+    if(response.ok) {
+        alert('Успешно');
+        overlay.style.display = 'none';
+        getShowtimes();
+    }
+    else alert('Ошибка при изменении сеанса');
+}
+
+async function setDeleteButton(e){
+    let id = e.currentTarget.parentElement.parentElement.querySelector('.showtime__id').innerHTML;
+    let url = `http://localhost:${port}/api/showtimes/${id}`;
+    let response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        }
+    });
+    if(response.ok) {
+        alert('Успешно');
+        getShowtimes();
+    }
+    else alert('Ошибка при удалении сеанса');
+}
+
+function isInt(str) {
+    return !isNaN(str) && !isNaN(parseInt(str));
+}
+
+entrypoint();
 
