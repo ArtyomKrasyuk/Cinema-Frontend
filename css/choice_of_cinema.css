@@ -105,6 +105,57 @@ header{
     margin-bottom: 40px;
 }
 
+.date{
+    margin-bottom: 40px;
+}
+
+.date__container{
+    display: flex;
+    align-items: center;
+}
+
+.date__title{
+    font-size: 18px;
+    line-height: 28px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.date__value{
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 400;
+    padding: 11px 13px;
+    border: 1px solid #E1E5EA;
+    border-radius: 10px;
+    width: 150px;
+    z-index: 2;
+}
+
+.date__img{
+    width: 15px;
+    height: 20px;
+    margin-left: -25px;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.date__reset{
+    color: #fff;
+    background-color: #3C83F6;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 400;
+    padding: 11px 13px;
+    border: 1px solid #3C83F6;
+    border-radius: 10px;
+    margin-left: 25px;
+}
+
+.date__img, .date__value, .date__reset:hover{
+    cursor: pointer;
+}
+
 .cinema{
     width: 100%;
     border: 1px solid #E1E5EA;

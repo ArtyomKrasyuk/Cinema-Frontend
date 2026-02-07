@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/choice_of_cinema.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <title>CinemaBook</title>
 </head>
 <body>
@@ -22,36 +23,39 @@
     <main>
         <div class="container">
             <div class="main__title">Выберите кинотеатр</div>
-            <div class="main__subtitle">Доступные сеансы на 05.01.2026</div>
-            <div class="cinema">
-                <div class="cinema__title">Синема Парк</div>
-                <div class="cinema__container">
-                    <div class="cinema__show">
-                        <div class="show__time">
-                            <img src="img/clock.png" alt="" class="time__img">
-                            <div class="time__text">12:30</div>
+            <div class="main__subtitle">Выберите доступный сеанс в подходящее для вас время</div>
+            <div class="date">
+                <div class="date__title">Дата</div>
+                <div class="date__container">
+                    <input type="text" class="date__value" placeholder="Все даты" id="date__value">
+                    <img src="img/calendar-blue.png" alt="" class="date__img">
+                </div>
+            </div>
+            <div class="cinema_container">
+                <!--
+                <div class="cinema">
+                    <div class="cinema__title">Синема Парк</div>
+                    <div class="cinema__container">
+                        <div class="cinema__show">
+                            <div class="show__time">
+                                <img src="img/clock.png" alt="" class="time__img">
+                                <div class="time__text">12:30</div>
+                            </div>
+                            <div class="show__type">3D</div>
+                            <div class="show__price">от 350 ₽</div>
+                            <div class="show__btn">Выбрать места</div>
                         </div>
-                        <div class="show__type">3D</div>
-                        <div class="show__price">от 350 ₽</div>
-                        <div class="show__btn">Выбрать места</div>
-                    </div>
-
-                    <div class="cinema__show">
-                        <div class="show__time">
-                            <img src="img/clock.png" alt="" class="time__img">
-                            <div class="time__text">12:30</div>
-                        </div>
-                        <div class="show__type">3D</div>
-                        <div class="show__price">от 350 ₽</div>
-                        <div class="show__btn">Выбрать места</div>
                     </div>
                 </div>
+                -->
             </div>
         </div>
     </main>
     <footer>
         <p class="footer__text">Разработал Красюк Артём Максимович 6403-020302D</p>
     </footer>
+    <script src="https://unpkg.com/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+    <script src="https://unpkg.com/flatpickr@4.6.13/dist/l10n/ru.js"></script>
     <script src="js/choice_of_cinema.js"></script>
 </body>
 </html>

@@ -1,13 +1,5 @@
 'use strict'
 
-class Hall{
-    constructor(hallId, number, seats){
-        this.hallId = hallId;
-        this.number = number;
-        this.seats = seats;
-    }
-}
-
 class Cinema{
     constructor(cinemaId, title, address, halls){
         this.cinemaId = cinemaId;
@@ -18,18 +10,20 @@ class Cinema{
 }
 
 class HallWithoutSeats{
-    constructor(hallId, cinemaId, number){
+    constructor(hallId, cinemaId, number, hallType){
         this.hallId = hallId;
         this.cinemaId = cinemaId;
         this.number = number;
+        this.hallType = hallType;
     }
 }
 
 class HallRequest{
-    constructor(cinemaId, number, seats){
+    constructor(cinemaId, number, seats, hallType){
         this.cinemaId = cinemaId;
         this.number = number;
         this.seats = seats;
+        this.hallType = hallType;
     }
 }
 
@@ -41,7 +35,8 @@ class SeatRequest{
     }
 }
 
-let cinemas = []
+let cinemas = [];
+let hallTypes = [];
 
 let port = 44249;
 
@@ -94,7 +89,8 @@ async function getCinemas(){
                 let hallWithoutSeats = new HallWithoutSeats(
                     parseInt(hall.hallId),
                     parseInt(hall.cinemaId),
-                    parseInt(hall.number)
+                    parseInt(hall.number),
+                    hall.hallType
                 );
                 hallsWithoutSeats.push(hallWithoutSeats);
             });
@@ -105,7 +101,7 @@ async function getCinemas(){
                 hallsWithoutSeats
             ));
         });
-
+        getHallTypes()
         setCinemas();
     }
     else alert('Ошибка получения кинотеатров');
@@ -231,6 +227,19 @@ function setHalls(e){
     container.style.display = 'block';
 }
 
+function setHallTypes(){
+    let container = document.getElementById('hall_type_select');
+    container.innerHTML = '';
+    hallTypes.forEach(hallType => {
+        let str = `<option value="${hallType}">${hallType}</option>`;
+        container.insertAdjacentHTML('beforeend', str);
+    })
+    
+    document.getElementById('hall_type_subtitle').style.display = 'block';
+    container.style.display = 'block';
+    container.onchange = chageHallType;
+}
+
 function setNav(){
     let createBtn = document.getElementById('create');
     let changeBtn = document.getElementById('change');
@@ -242,6 +251,8 @@ function setNav(){
         createBtn.classList.toggle('nav__option_active');
 
         document.getElementById('hall_select').style.display = 'none';
+        document.getElementById('hall_type_subtitle').style.display = 'block';
+        document.getElementById('hall_type_select').style.display = 'block';
         document.getElementById('hall_input').style.display = 'block';
 
         document.getElementById('hall_add').style.display = 'block';
@@ -262,6 +273,8 @@ function setNav(){
 
         document.getElementById('hall_select').style.display = 'none';
         document.getElementById('hall_input').style.display = 'none';
+        document.getElementById('hall_type_subtitle').style.display = 'none';
+        document.getElementById('hall_type_select').style.display = 'none';
         document.getElementById('hall_subtitle').style.display = 'none';
 
         document.getElementById('hall_add').style.display = 'none';
@@ -284,6 +297,8 @@ function setNav(){
 
         document.getElementById('hall_select').style.display = 'none';
         document.getElementById('hall_input').style.display = 'none';
+        document.getElementById('hall_type_subtitle').style.display = 'none';
+        document.getElementById('hall_type_select').style.display = 'none';
         document.getElementById('hall_subtitle').style.display = 'none';
 
         document.getElementById('hall_add').style.display = 'none';
@@ -358,7 +373,12 @@ document.getElementById('hall_add').onclick = function(e){
         hall.insertAdjacentHTML('beforeend', str);
     }
 
-    newHall = new HallRequest(document.getElementById('cinema_select').value, hallNumber, newSeats);
+    newHall = new HallRequest(
+        document.getElementById('cinema_select').value, 
+        hallNumber, 
+        newSeats,
+        document.getElementById('hall_type_select').value
+    );
 
     document.querySelectorAll('.row__seat').forEach(seat =>{
         seat.onclick = function(e){
@@ -407,10 +427,36 @@ async function getHall(e){
             seats.push(new SeatRequest(seat.row, seat.number, seat.type));
         });
         seats.sort((a, b) => a.row - b.row || a.number - b.number);
-        newHall = new HallRequest(json.cinemaId, json.number, seats);
+        newHall = new HallRequest(
+            json.cinemaId,
+            json.number,
+            seats,
+            json.hallType
+        );
         createSchema(deleteFlag);
     }
     else alert('Ошибка получения кинозала');
+}
+
+async function getHallTypes() {
+    let url = `http://127.0.0.1:${port}/api/hall-types`;
+    let response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        credentials: 'include'
+    });
+    if(response.ok){
+        let body = await response.text();
+        let json = JSON.parse(body);
+        hallTypes = [];
+        json.forEach(elem =>{
+            hallTypes.push(elem.title);
+        });
+        setHallTypes();
+    }
+    else alert('Ошибка получения типов кинозала');
 }
 
 function createSchema(deleteFlag){
