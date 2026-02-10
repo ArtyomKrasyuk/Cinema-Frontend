@@ -38,7 +38,7 @@ class SeatRequest{
 let cinemas = [];
 let hallTypes = [];
 
-let port = 44249;
+let port = 8000;
 
 let addCinema = document.getElementById('cinema_add');
 let overlay = document.querySelector('.overlay');
@@ -76,8 +76,7 @@ async function getCinemas(){
         method: 'GET',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
-        },
-        credentials: 'include'
+        }
     });
     if(response.ok){
         let body = await response.text();
@@ -416,8 +415,7 @@ async function getHall(e){
         method: 'GET',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
-        },
-        credentials: 'include'
+        }
     });
     if(response.ok){
         let body = await response.text();
@@ -444,8 +442,7 @@ async function getHallTypes() {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
-        },
-        credentials: 'include'
+        }
     });
     if(response.ok){
         let body = await response.text();

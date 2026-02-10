@@ -30,7 +30,7 @@ class HallWithoutSeats{
     }
 }
 
-let port = 44249;
+let port = 8000;
 
 let showtimesByCinemaId = {};
 let uniqueTimesSorted = [];
@@ -41,8 +41,7 @@ async function getShowtimes(){
         method: 'GET',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
-        },
-        credentials: 'include'
+        }
     });
     if(response.ok){
         let body = await response.text();

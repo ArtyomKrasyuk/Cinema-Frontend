@@ -18,7 +18,7 @@ class Movie{
     }
 }
 
-let port = 44249;
+let port = 8000;
 
 let showtimesByMovie = new Map();
 let uniqueGenres = new Set();
@@ -30,8 +30,7 @@ async function getShowtimes(){
         method: 'GET',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
-        },
-        credentials: 'include'
+        }
     });
     if(response.ok){
         let body = await response.text();

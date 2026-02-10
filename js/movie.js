@@ -1,6 +1,6 @@
 'use strict'
 
-let port = 44249;
+let port = 8000;
 
 async function setData(){
     let url = `http://127.0.0.1:${port}/api/movies/${getUrlParameter('movieId')}`;
@@ -8,8 +8,7 @@ async function setData(){
         method: 'GET',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
-        },
-        credentials: 'include'
+        }
     });
     if(response.ok){
         let body = await response.text();
