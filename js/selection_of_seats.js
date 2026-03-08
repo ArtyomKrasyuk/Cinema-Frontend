@@ -1,88 +1,149 @@
 'use strict'
 
 class Showtime{
-    constructor(showtimeId, movieTitle, cinema, hall, date, time){
+    constructor(showtimeId, movieTitle, cinemaTitle, cinemaAddress, hall, date, time, basePrice){
         this.showtimeId = showtimeId;
         this.movieTitle = movieTitle;
-        this.cinema = cinema;
+        this.cinemaTitle = cinemaTitle;
+        this.cinemaAddress = cinemaAddress;
         this.hall = hall;
         this.date = date;
         this.time = time;
-    }
-}
-
-class Cinema{
-    constructor(cinemaId, title, address, halls){
-        this.cinemaId = cinemaId;
-        this.title = title;
-        this.address = address;
+        this.basePrice = basePrice;
     }
 }
 
 class Hall{
-    constructor(hallId, number, seats){
+    constructor(hallId, number, seats, hallTypeFactor, hallType){
         this.hallId = hallId;
         this.number = number;
         this.seats = seats;
+        this.hallTypeFactor = hallTypeFactor;
+        this.hallType = hallType;
     }
 }
 
 class Seat{
-    constructor(seatId, seatType, row, number, booked, price){
+    constructor(seatId, seatType, row, number, booked, factor){
         this.seatId = seatId;
         this.seatType = seatType;
         this.row = row;
         this.number = number;
         this.booked = booked;
-        this.price = price;
+        this.factor = factor;
     }
 }
 
-let seats = [
-    new Seat(1, "Эконом", 1, 1, false, 500),
-    new Seat(2, "Эконом", 1, 2, true, 500),
-    new Seat(3, "Эконом", 1, 3, false, 500),
-    new Seat(4, "Эконом", 1, 4, false, 500),
-    new Seat(5, "Эконом", 1, 5, false, 500),
-    new Seat(6, "Эконом", 1, 6, false, 500),
-    new Seat(7, "Эконом", 1, 7, true, 500),
-    new Seat(8, "Эконом", 1, 8, false, 500),
-    new Seat(9, "Эконом", 1, 9, false, 500),
-    new Seat(10, "Эконом", 1, 10, false, 500),
-
-    new Seat(11, "Обычное", 2, 1, false, 600),
-    new Seat(12, "Обычное", 2, 2, false, 600),
-    new Seat(13, "Обычное", 2, 3, false, 600),
-    new Seat(14, "Обычное", 2, 4, false, 600),
-    new Seat(15, "Обычное", 2, 5, false, 600),
-    new Seat(16, "Обычное", 2, 6, false, 600),
-    new Seat(17, "Обычное", 2, 7, false, 600),
-    new Seat(18, "Обычное", 2, 8, false, 600),
-    new Seat(19, "Обычное", 2, 9, false, 600),
-    new Seat(20, "Обычное", 2, 10, false, 600),
-
-    new Seat(21, "VIP", 3, 1, false, 700),
-    new Seat(22, "VIP", 3, 2, false, 700),
-    new Seat(23, "VIP", 3, 3, false, 700),
-    new Seat(24, "VIP", 3, 4, false, 700),
-    new Seat(25, "VIP", 3, 5, true, 700),
-    new Seat(26, "VIP", 3, 6, false, 700),
-    new Seat(27, "VIP", 3, 7, false, 700),
-    new Seat(28, "VIP", 3, 8, false, 700),
-    new Seat(29, "VIP", 3, 9, false, 700),
-    new Seat(30, "VIP", 3, 10, false, 700),
-];
-
-let showtime = new Showtime(
-    1,
-    "Какой-то фильм",
-    new Cinema(1, "Кинотеатр Галерея", "ул. Улица дом 1"),
-    new Hall(1, 1, seats),
-    "2026-01-18",
-    "20:00"
-);
+let showtime = null;
 
 let selectedSeats = [];
+
+let port = 8000;
+let showtimeId = getUrlParameter("showtimeId");
+
+// Функция для получения забронированных мест
+async function fetchReservedSeats(showtimeId) {
+    try {
+        const response = await fetch(`http://localhost:${port}/api/orders/reserved/${showtimeId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        // data - это объект ReservedSeatsResponseDTO с полем seatIds
+        return new Set(data.seatIds || []);
+        
+    } catch (error) {
+        alert(`Ошибка получения забронированных мест: ${error}`);
+        return new Set(); // Возвращаем пустой Set в случае ошибки
+    }
+}
+
+// Функция для создания объекта Seat из DTO
+function createSeatFromDTO(seatDTO, isBooked = false) {
+    return new Seat(
+        seatDTO.seatId,
+        seatDTO.type,      // seatType из type
+        seatDTO.row,
+        seatDTO.number,
+        isBooked,          // флаг бронирования
+        seatDTO.factor
+    );
+}
+
+// Функция для создания объекта Hall из DTO
+function createHallFromDTO(hallDTO, reservedSeatIds = new Set()) {
+    // Создаем массив объектов Seat, помечая забронированные
+    const seats = hallDTO.seats.map(seatDTO => {
+        const isBooked = reservedSeatIds.has(seatDTO.seatId);
+        return createSeatFromDTO(seatDTO, isBooked);
+    });
+    
+    return new Hall(
+        hallDTO.hallId,
+        hallDTO.number,
+        seats,
+        hallDTO.hallTypeFactor,
+        hallDTO.hallType
+    );
+}
+
+// Функция для создания объекта Showtime из DTO
+function createShowtimeFromDTO(showtimeDTO, reservedSeatIds = new Set()) {
+    // Создаем объект Hall с учетом забронированных мест
+    const hall = createHallFromDTO(showtimeDTO.hall, reservedSeatIds);
+    
+    
+    const [year, month, day] = showtimeDTO.time.split(' ')[0].split('-');
+    let date = `${day}.${month}.${year}`;
+    let time = showtimeDTO.time.split(' ')[1].substring(0, 5);
+    
+    
+    return new Showtime(
+        showtimeDTO.showtimeId,
+        showtimeDTO.movieTitle,
+        showtimeDTO.cinemaTitle,
+        showtimeDTO.cinemaAddress,
+        hall,
+        date,
+        time,
+        showtimeDTO.basePrice
+    );
+}
+
+// Функция для получения одного сеанса
+async function fetchShowtime(showtimeId) {
+    const response = await fetch(`http://localhost:${port}/api/showtimes/hall/${showtimeId}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (!response.ok) {
+       alert("Ошибка в получении киносеанса");
+       return;
+    }
+
+    return await response.json();
+}
+
+// Основная функция для получения одного сеанса с бронированиями
+async function fetchShowtimeWithReservations(showtimeId) {
+    // Получаем данные параллельно
+    const [showtimeDTO, reservedSeatIds] = await Promise.all([
+        fetchShowtime(showtimeId),
+        fetchReservedSeats(showtimeId)
+    ]);
+
+    showtime = createShowtimeFromDTO(showtimeDTO, reservedSeatIds);
+
+    renderHall(showtime);
+}
 
 function renderHall(showtime) {
     const hallContainer = document.querySelector('.hall');
@@ -130,7 +191,7 @@ function renderHall(showtime) {
                         return `<div class="${seatClass}" 
                                      data-id="${seat.seatId}" 
                                      data-booked="${seat.booked}"
-                                     data-price="${seat.price}"
+                                     data-price="${Math.ceil(showtime.basePrice * showtime.hall.hallTypeFactor * seat.factor)}"
                                      data-type="${seat.seatType}"
                                      data-row="${seat.row}"
                                      data-number="${seat.number}">
@@ -145,7 +206,7 @@ function renderHall(showtime) {
         hallContainer.insertAdjacentHTML('beforeend', hallElementHTML);
     });
 
-    document.querySelector('.main__subtitle').innerHTML = `${showtime.cinema.title} (${showtime.cinema.address}) • ${showtime.time} • 3D`;
+    document.querySelector('.main__subtitle').innerHTML = `${showtime.cinemaTitle} (${showtime.cinemaAddress}) • ${showtime.date} • ${showtime.time} • ${showtime.hall.hallType}`;
 
     document.querySelectorAll('.row__seat').forEach(elem =>{
         elem.onclick = setSeat;
@@ -244,4 +305,207 @@ function initOrderForm() {
     }
 }
 
-renderHall(showtime);
+document.querySelector('.form__btn').onclick = createOrder;
+
+async function createOrder() {
+    const [day, month, year] = date.split('.');
+    let dateFormatted = `${year}-${month}-${day}`;
+    let price = 0;
+    let seats = [];
+    selectedSeats.forEach(seat => {
+        price += seat.price;
+        seats.push({
+            'seatId': seat.id,
+            'seatNumber': seat.number,
+            'seatRow': seat.row,
+            'showtimeId': showtime.showtimeId
+        });
+    });
+    let data = {
+        'showtimeId': showtime.showtimeId,
+        'movieTitle': showtime.movieTitle,
+        'cinemaTitle': showtime.cinemaTitle,
+        'hallNumber': showtime.hall.number,
+        'time': `${dateFormatted} ${showtime.time}`,
+        'price': price,
+        'seats': seats
+    }
+
+    let url = `http://localhost:${port}/api/orders`;
+    let response = await fetchWithAuth(url, {
+        method: 'POST',
+        body: JSON.stringify(data)
+    });
+    if(response.ok) {
+        const result = await response.json();
+        localStorage.setItem('orderId', result.orderId);
+        localStorage.setItem('expiresAt', result.expiresAt);
+        localStorage.setItem('price', result.price);
+
+        localStorage.setItem('selectedSeats', selectedSeats);
+        localStorage.setItem('movieTitle', showtime.movieTitle);
+        localStorage.setItem('cinemaTitle', showtime.cinemaTitle);
+        localStorage.setItem('date', showtime.date);
+        localStorage.setItem('time', showtime.time);
+        localStorage.setItem('hallType', showtime.hall.hallType);
+        window.location.href = 'payment';
+    }
+    else alert('Ошибка при создании заказа');
+}
+
+async function fetchWithAuth(url, options = {}) {
+    // Функция для выполнения запроса с текущим access token
+    async function executeRequest(token) {
+        return fetch(url, {
+        ...options,
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json;charset=utf-8'
+        }
+        });
+    }
+
+    // Получаем текущий access token
+    let accessToken = localStorage.getItem('access_token');
+    
+    if (!accessToken) {
+        window.location.href = 'sign_in.html';
+        return;
+    }
+
+    // Выполняем первый запрос
+    let response = await executeRequest(accessToken);
+
+    // Если запрос успешен, возвращаем ответ
+    if (response.status !== 401) {
+        return response;
+    }
+
+    // Если получили 401, пробуем обновить токен
+    const refreshToken = localStorage.getItem('refresh_token');
+    
+    if (!refreshToken) {
+        logout();
+        window.location.href = 'sign_in.html';
+        return;
+    }
+
+    // Обновляем токены
+    const refreshResponse = await fetch(`http://localhost:${port}/refresh`, {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify({ token: refreshToken })
+    });
+
+    if (!refreshResponse.ok) {
+        logout();
+        window.location.href = 'sign_in.html';
+        return;
+    }
+
+    const data = await refreshResponse.json();
+
+    // Сохраняем новые токены
+    localStorage.setItem('access_token', data.access_token);
+    localStorage.setItem('refresh_token', data.refresh_token);
+
+    // Повторяем исходный запрос с новым токеном
+    return await executeRequest(data.access_token);
+
+}
+
+function getUrlParameter(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+fetchShowtimeWithReservations(getUrlParameter('showtimeId'));
+
+document.querySelector('.sign_in_btn').onclick = function(e){
+    window.location.href = 'sign_in.html';
+}
+
+document.querySelector('.sign_up_btn').onclick = function(e){
+    window.location.href = 'sign_up.html';
+}
+
+document.querySelector('.profile').onclick = function(e){
+    window.location.href = 'profile.html';
+}
+
+async function checkAuth() {
+  const accessToken = localStorage.getItem("access_token");
+  const refreshToken = localStorage.getItem("refresh_token");
+
+  if (!accessToken) {
+    return false;
+  }
+
+  try {
+    const response = await fetch(`http://localhost:${port}/test/client`, {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer " + accessToken,
+        'Content-Type': 'application/json;charset=utf-8'
+      }
+    });
+
+    if (response.status === 200) {
+      return true;
+    }
+
+    if (response.status === 401 && refreshToken) {
+      const refreshResponse = await fetch(`http://localhost:${port}/refresh`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: {
+            token: JSON.stringify(refreshToken)
+        }
+      });
+
+      if (!refreshResponse.ok) {
+        logout();
+        return false;
+      }
+
+      const data = await refreshResponse.json();
+
+      localStorage.setItem("access_token", data.access_token);
+      localStorage.setItem("refresh_token", data.refresh_token);
+
+      const response = await fetch(`http://localhost:${port}/test/client`, {
+        method: "GET",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("access_token")
+        }
+      });
+
+      if (response.status === 200) {
+        return true;
+      }
+    }
+
+  } catch (e) {
+    console.error("Ошибка аутентификации", e);
+  }
+
+  return false;
+}
+
+function logout() {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
+}
+
+async function setHeader() {
+    if(await checkAuth()){
+        document.querySelector('.header__buttons').style.display = 'none';
+        document.querySelector('.profile').style.display = 'block';
+    } 
+}
+
+setHeader();

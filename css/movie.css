@@ -80,6 +80,23 @@ header{
     background-color: #4a8cf7;
 }
 
+.profile{
+    font-size: 14px;
+    font-weight: 400;
+    color: #fff;
+    padding: 11px 12px;
+    border: 0px solid;
+    border-radius: 10px;
+    background-color: #3C83F6;
+    margin-left: 8px;
+}
+
+.profile:hover{
+    cursor: pointer;
+    background-color: #4a8cf7;
+}
+
+
 /*--------------------------main------------------------------------------*/
 
 .container{

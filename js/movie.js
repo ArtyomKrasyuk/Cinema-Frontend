@@ -35,3 +35,94 @@ function getUrlParameter(name) {
 }
 
 setData();
+
+document.querySelector('.sign_in_btn').onclick = function(e){
+    window.location.href = 'sign_in.html';
+}
+
+document.querySelector('.sign_up_btn').onclick = function(e){
+    window.location.href = 'sign_up.html';
+}
+
+document.querySelector('.description__btn').onclick = function(e){
+    window.location.href = `choice_of_cinema.html?movieId=${getUrlParameter('movieId')}`;
+}
+
+document.querySelector('.profile').onclick = function(e){
+    window.location.href = 'profile.html';
+}
+
+async function checkAuth() {
+  const accessToken = localStorage.getItem("access_token");
+  const refreshToken = localStorage.getItem("refresh_token");
+
+  if (!accessToken) {
+    return false;
+  }
+
+  try {
+    const response = await fetch(`http://localhost:${port}/test/client`, {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer " + accessToken,
+        'Content-Type': 'application/json;charset=utf-8'
+      }
+    });
+
+    if (response.status === 200) {
+      return true;
+    }
+
+    if (response.status === 401 && refreshToken) {
+      const refreshResponse = await fetch(`http://localhost:${port}/refresh`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: {
+            token: JSON.stringify(refreshToken)
+        }
+      });
+
+      if (!refreshResponse.ok) {
+        logout();
+        return false;
+      }
+
+      const data = await refreshResponse.json();
+
+      localStorage.setItem("access_token", data.access_token);
+      localStorage.setItem("refresh_token", data.refresh_token);
+
+      const response = await fetch(`http://localhost:${port}/test/client`, {
+        method: "GET",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("access_token")
+        }
+      });
+
+      if (response.status === 200) {
+        return true;
+      }
+    }
+
+  } catch (e) {
+    console.error("Ошибка аутентификации", e);
+  }
+
+  return false;
+}
+
+function logout() {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
+}
+
+async function setHeader() {
+    if(await checkAuth()){
+        document.querySelector('.header__buttons').style.display = 'none';
+        document.querySelector('.profile').style.display = 'block';
+    } 
+}
+
+setHeader();
