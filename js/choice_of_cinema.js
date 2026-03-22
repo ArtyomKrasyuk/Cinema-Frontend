@@ -210,14 +210,10 @@ async function checkAuth() {
 
     if (response.status === 401 && refreshToken) {
       const refreshResponse = await fetch(`http://localhost:${port}/refresh`, {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json;charset=utf-8'
-        },
-        body: {
-            token: JSON.stringify(refreshToken)
-        }
-      });
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json;charset=utf-8' },
+            body: JSON.stringify({ token: refreshToken })
+        });
 
       if (!refreshResponse.ok) {
         logout();

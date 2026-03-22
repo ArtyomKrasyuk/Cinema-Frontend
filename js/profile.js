@@ -1,120 +1,323 @@
 'use strict'
 
-function toggle(){
-    document.querySelector('.profile_card__information').classList.toggle('hidden');
-    document.querySelector('.profile_card__changes').classList.toggle('hidden');
-}
-
-document.querySelector('.profile_card__btn').onclick = toggle;
-document.querySelector('.changes__cancel').onclick = toggle;
+let port = 8000;
 
 document.addEventListener('DOMContentLoaded', () => {
-    const moviesContainer = document.querySelector('.movie_section__movies');
-    const paginationContainer = document.querySelector('.movie_section__pages');
+    // Элементы отображения
+    const displayValues = document.querySelectorAll('.profile_card__value');
+    const btnEdit = document.querySelector('.profile_card__btn');
+    const btnCancel = document.querySelector('.changes__cancel');
+    const btnSubmit = document.querySelector('.changes__submit');
+    
+    // Элементы формы
+    const infoBlock = document.querySelector('.profile_card__information');
+    const editForm = document.querySelector('.profile_card__changes');
+    const inputs = document.querySelectorAll('.input_container__input');
 
-    // Пример данных фильмов
-    const favoriteMovies = [
-        { title: 'Матрица', genres: ['Фантастика', 'Боевик'], year: 1999, country: 'США', rating: 8.7, img: 'img/Matrix-DVD.jpg', link: 'no_page.html' },
-        { title: 'Интерстеллар', genres: ['Фантастика', 'Драма'], year: 2014, country: 'США', rating: 8.6, img: 'img/Interstellar_2014.jpg', link: 'no_page.html' },
-        { title: 'Форрест Гамп', genres: ['Драма', 'Комедия'], year: 1994, country: 'США', rating: 9.5, img: 'img/forest.webp', link: 'no_page.html' },
-        { title: 'Начало', genres: ['Фантастика', 'Триллер'], year: 2010, country: 'США', rating: 8.9, img: 'img/nachalo.webp', link: 'no_page.html' },
-        { title: 'Таксист', genres: ['Драма', 'Криминал'], year: 1976, country: 'США', rating: 8.4, img: 'img/taxi_driver.jpg', link: 'no_page.html' },
-        { title: 'Брат', genres: ['Драма', 'Криминал'], year: 1997, country: 'Россия', rating: 8.3, img: 'img/brother.webp', link: 'no_page.html' },
-        { title: 'Брат 2', genres: ['Драма', 'Криминал'], year: 2000, country: 'Россия', rating: 8.2, img: 'img/Brat2.jpg', link: 'no_page.html' },
-    ];
+    const accessToken = localStorage.getItem("access_token");
 
-    const MOVIES_PER_PAGE = 4;
-    let currentPage = 1;
+    if (accessToken) {
+        try {
+            // Декодируем Payload токена
+            const base64Url = accessToken.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const userData = JSON.parse(window.atob(base64));
 
-    // Рендер фильмов
-    function renderMovies(moviesList) {
-        const start = (currentPage - 1) * MOVIES_PER_PAGE;
-        const end = start + MOVIES_PER_PAGE;
-        const visibleMovies = moviesList.slice(start, end);
+            // Извлекаем данные согласно вашей структуре
+            const fullName = userData.name || "Пользователь";
+            const email = userData.email || "Email не указан";
 
-        moviesContainer.innerHTML = ''; 
+            // Функция заполнения данных в HTML
+            const updateUI = () => {
+                // Текст в карточке (Имя и Email)
+                displayValues[0].textContent = fullName;
+                displayValues[1].textContent = email;
 
-        visibleMovies.forEach(movie => {
-            const div = document.createElement('div');
-            div.classList.add('movie_section__movie');
-            div.innerHTML = `
-                <img src="${movie.img}" alt="Постер" class="movie__img"/>
-                <div class="movie__description">
-                    <h2 class="movie__title"><a href="${movie.link}">${movie.title}</a></h2>
-                    <p class="movie__genres">${movie.genres}</p>
-                    <div class="movie__rating">
-                        <img src="img/star.png" alt="Рейтинг" class="rating__img" />
-                        <p class="rating__number">${movie.rating}</p>
-                    </div>
-                    <button class="movie__btn">Убрать из избранного</button>
-                </div>
-            `;
-            moviesContainer.appendChild(div);
-        });
-    }
+                // Значения в инпутах (Имя и Email)
+                inputs[0].value = fullName;
+                inputs[1].value = email;
+            };
 
-    // Пагинация
-    function renderPagination(totalItems) {
-        paginationContainer.innerHTML = '';
-        const totalPages = Math.ceil(totalItems / MOVIES_PER_PAGE);
-        if (totalPages <= 1) return;
+            updateUI();
 
-        const prev = document.createElement('span');
-        prev.textContent = '<';
-        prev.classList.add('pages__page');
-        if (currentPage === 1) prev.classList.add('disabled');
-        prev.addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
-                updateMovies();
-            }
-        });
-        paginationContainer.appendChild(prev);
-
-        const maxVisible = 2;
-        for (let i = 1; i <= totalPages; i++) {
-            if (
-                i === 1 ||
-                i === totalPages ||
-                (i >= currentPage - maxVisible && i <= currentPage + maxVisible)
-            ) {
-                const page = document.createElement('span');
-                page.textContent = i;
-                page.classList.add('pages__page');
-                if (i === currentPage) page.classList.add('active');
-                page.addEventListener('click', () => {
-                    currentPage = i;
-                    updateMovies();
-                });
-                paginationContainer.appendChild(page);
-            } else if (
-                i === currentPage - maxVisible - 1 ||
-                i === currentPage + maxVisible + 1
-            ) {
-                const ellipsis = document.createElement('span');
-                ellipsis.textContent = '...';
-                ellipsis.classList.add('ellipsis');
-                paginationContainer.appendChild(ellipsis);
-            }
+        } catch (e) {
+            console.error("Ошибка парсинга токена:", e);
         }
+    }
 
-        const next = document.createElement('span');
-        next.textContent = '>';
-        next.classList.add('pages__page');
-        if (currentPage === totalPages) next.classList.add('disabled');
-        next.addEventListener('click', () => {
-            if (currentPage < totalPages) {
-                currentPage++;
-                updateMovies();
+    // --- Логика интерфейса ---
+
+    // Кнопка "Редактировать"
+    btnEdit.addEventListener('click', () => {
+        infoBlock.classList.add('hidden');
+        editForm.classList.remove('hidden');
+    });
+
+    // Кнопка "Отмена"
+    btnCancel.addEventListener('click', () => {
+        editForm.classList.add('hidden');
+        infoBlock.classList.remove('hidden');
+    });
+
+    // Кнопка "Сохранить" (заглушка для логики обновления)
+    btnSubmit.addEventListener('click', () => {
+        // Здесь обычно идет fetch запрос к API Keycloak или вашему бэкенду
+        alert("Запрос на сохранение отправлен!");
+        editForm.classList.add('hidden');
+        infoBlock.classList.remove('hidden');
+    });
+});
+
+loadUserOrders();
+
+async function loadUserOrders() {
+    if(await checkAuth()){
+        document.querySelector('.header__buttons').style.display = 'none';
+        document.querySelector('.profile').style.display = 'block';
+    }
+    else{
+        window.location.href = 'sign_in.html';
+        return;
+    }
+
+    try {
+        const response = await authorizedFetch('http://localhost:8000/api/orders');
+        if (!response.ok) throw new Error('Не удалось загрузить бронирования');
+        
+        const orders = await response.json();
+        
+        // Находим контейнеры (карточки профиля)
+        // Предположим, первый блок .profile_card — активные, второй — история
+        const profileCards = document.querySelectorAll('.profile_card');
+        const activeContainer = profileCards[1];
+        const historyContainer = profileCards[2];
+
+        // Очищаем старые билеты, оставляя только заголовок и подзаголовок
+        clearTickets(activeContainer);
+        clearTickets(historyContainer);
+
+        let activeCount = 0;
+        let historyCount = 0;
+        const now = new Date();
+
+        orders.forEach(order => {
+            const orderDate = new Date(order.time);
+            const isExpired = orderDate < now;
+            const isCancelled = order.state === 'CANCELLED';
+
+            if (!isExpired && !isCancelled) {
+                activeContainer.insertAdjacentHTML('beforeend', createTicketHtml(order, false));
+                activeCount++;
+            } else {
+                historyContainer.insertAdjacentHTML('beforeend', createTicketHtml(order, true, isCancelled));
+                historyCount++;
             }
         });
-        paginationContainer.appendChild(next);
+
+        // Обновляем счетчики в заголовках
+        updateCounter(activeContainer, activeCount);
+        updateCounter(historyContainer, historyCount);
+
+    } catch (error) {
+        console.error("Ошибка:", error);
+    }
+}
+
+function createTicketHtml(order, isHistory, isCancelled = false) {
+    const dateObj = new Date(order.time);
+    const dateStr = dateObj.toLocaleDateString('ru-RU');
+    const timeStr = dateObj.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    
+    // Генерируем блоки для мест (ряд-место)
+    const seatsHtml = order.seats
+        .map(s => `<div class="card__place">${s.seatRow}-${s.seatNumber}</div>`)
+        .join('');
+
+    // Статус для истории
+    const statusHtml = isCancelled ? `<p class="card__status">Отменено</p>` : '';
+
+    // Правая часть (кнопки только для активных)
+    const rightSideHtml = isHistory 
+        ? `<div class="card__price">${order.price} ₽</div>`
+        : `
+            <div class="card__price">${order.price} ₽</div>
+            <button class="card__cancel clickable" onclick="cancelOrder(${order.orderId})">Отменить</button>
+            <button class="card__download clickable">Скачать билет</button>
+        `;
+
+    return `
+        <div class="ticket_card">
+            <div class="ticket_card__left">
+                <div class="card__container">
+                    <img src="img/movie16.png" alt="Фильм" width="16" height="16"/>
+                    <h2 class="card__title">${order.movieTitle}</h2>
+                    ${statusHtml}
+                </div>
+                <div class="card__container">
+                    <img src="img/location16.png" alt="Место" width="16" height="16"/>
+                    <p class="card__text text_margin">${order.cinemaTitle}, Зал ${order.hallNumber}</p>
+                </div>
+                <div class="card__row">
+                    <div class="card__container">
+                        <img src="img/calendar16.png" alt="Дата" width="16" height="16"/>
+                        <p class="card__text">${dateStr}</p>
+                    </div>
+                    <div class="card__container container_margin">
+                        <img src="img/time16.png" alt="Время" width="16" height="16"/>
+                        <p class="card__text">${timeStr}</p>
+                    </div>
+                </div>
+                <div class="card__row">
+                     <p class="card__text">Места:</p>
+                     ${seatsHtml}
+                </div>
+            </div>
+            <div class="ticket_card__right">
+                ${rightSideHtml}
+            </div>
+        </div>
+    `;
+}
+
+async function authorizedFetch(url, options = {}) {
+    let accessToken = localStorage.getItem("access_token");
+
+    // Инициализируем headers, если их нет
+    options.headers = {
+        ...options.headers,
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json;charset=utf-8'
+    };
+
+    let response = await fetch(url, options);
+
+    // Если 401 (Токен истек)
+    if (response.status === 401) {
+        const refreshToken = localStorage.getItem("refresh_token");
+        
+        if (!refreshToken) {
+            window.location.href = 'sign_in.html';
+            return;
+        }
+        const refreshResponse = await fetch(`http://localhost:${port}/refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json;charset=utf-8' },
+            body: JSON.stringify({ token: refreshToken })
+        });
+
+        if (refreshResponse.ok) {
+            const data = await refreshResponse.json();
+
+            localStorage.setItem("access_token", data.access_token);
+            localStorage.setItem("refresh_token", data.refresh_token);
+
+            // Повторный запрос с новым токеном
+            options.headers['Authorization'] = `Bearer ${localStorage.getItem("access_token")}`;
+            return await fetch(url, options);
+        } else {
+            // Если и refresh не помог — на выход
+            localStorage.clear();
+            window.location.href = 'sign_in.html';
+        }
     }
 
-    function updateMovies() {
-        renderMovies(favoriteMovies);
-        renderPagination(favoriteMovies.length);
+    return response;
+}
+
+// Вспомогательные функции
+function clearTickets(container) {
+    const tickets = container.querySelectorAll('.ticket_card');
+    tickets.forEach(t => t.remove());
+}
+
+function updateCounter(container, count) {
+    const title = container.querySelector('.profile_card__title');
+    if (title) {
+        title.textContent = title.textContent.replace(/\(\d+\)/, `(${count})`);
+    }
+}
+
+async function cancelOrder(orderId) {
+    // 1. Подтверждение действия у пользователя
+    const isConfirmed = confirm("Вы уверены, что хотите отменить бронирование? Средства будут возвращены на ваш счет.");
+    
+    if (!isConfirmed) return;
+
+    try {
+        // 2. Отправка запроса через нашу обертку с авторизацией
+        const response = await authorizedFetch(`http://localhost:${port}/api/payment/refund/${orderId}`, {
+            method: 'POST'
+        });
+
+        if (response.ok) {
+            alert("Заказ успешно отменен. Средства возвращены.");
+            
+            // 3. Перерисовываем интерфейс, чтобы заказ переместился в историю со статусом CANCELLED
+            await renderOrders(); 
+        } else {
+            // Обработка ошибок от сервера (например, если сеанс уже начался и отмена невозможна)
+            const errorData = await response.json().catch(() => ({}));
+            alert(`Ошибка при отмене: ${errorData.message || "попробуйте позже"}`);
+        }
+    } catch (error) {
+        console.error("Ошибка сети при отмене заказа:", error);
+        alert("Не удалось связаться с сервером для отмены бронирования.");
+    }
+}
+
+async function checkAuth() {
+  const accessToken = localStorage.getItem("access_token");
+  const refreshToken = localStorage.getItem("refresh_token");
+
+  if (!accessToken) {
+    return false;
+  }
+
+  try {
+    const response = await fetch(`http://localhost:${port}/test/client`, {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer " + accessToken,
+        'Content-Type': 'application/json;charset=utf-8'
+      }
+    });
+
+    if (response.status === 200) {
+      return true;
     }
 
-    updateMovies();
-});
+    if (response.status === 401 && refreshToken) {
+      const refreshResponse = await fetch(`http://localhost:${port}/refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json;charset=utf-8' },
+            body: JSON.stringify({ token: refreshToken })
+        });
+
+      if (!refreshResponse.ok) {
+        logout();
+        return false;
+      }
+
+      const data = await refreshResponse.json();
+
+      localStorage.setItem("access_token", data.access_token);
+      localStorage.setItem("refresh_token", data.refresh_token);
+
+      const response = await fetch(`http://localhost:${port}/test/client`, {
+        method: "GET",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("access_token")
+        }
+      });
+
+      if (response.status === 200) {
+        return true;
+      }
+    }
+
+  } catch (e) {
+    console.error("Ошибка аутентификации", e);
+  }
+
+  return false;
+}

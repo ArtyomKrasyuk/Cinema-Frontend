@@ -1,16 +1,18 @@
 'use strict'
 
+let port = 8000;
+
 function setData(){
     document.getElementById('movie').innerHTML = localStorage.getItem('movieTitle');
     document.getElementById('cinema').innerHTML = localStorage.getItem('cinemaTitle');
     document.getElementById('datetime').innerHTML = `${localStorage.getItem('date')}, ${localStorage.getItem('time')} (${localStorage.getItem('hallType')})`;
     let container = document.querySelector('.selected_seats__container');
     container.innerHTML = '';
-    localStorage.getItem('selectedSeats').forEach(seat => {
+    JSON.parse(localStorage.getItem('selectedSeats')).forEach(seat => {
         let str = `<div class="selected_seat">Ряд ${seat.row}, место ${seat.number}</div>`;
         container.insertAdjacentHTML('beforeend', str);
     });
-    document.querySelector('.price__text').innerHTML = `${localStorage.getItem('price')} ₽`;
+    document.getElementById('price').innerHTML = `${localStorage.getItem('price')} ₽`;
 }
 
 async function fetchWithAuth(url, options = {}) {
@@ -112,14 +114,10 @@ async function checkAuth() {
 
     if (response.status === 401 && refreshToken) {
       const refreshResponse = await fetch(`http://localhost:${port}/refresh`, {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json;charset=utf-8'
-        },
-        body: {
-            token: JSON.stringify(refreshToken)
-        }
-      });
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json;charset=utf-8' },
+            body: JSON.stringify({ token: refreshToken })
+        });
 
       if (!refreshResponse.ok) {
         logout();
@@ -164,4 +162,119 @@ async function setHeader() {
     } 
 }
 
-//setHeader();
+setHeader();
+setData();
+
+document.querySelector('.form__btn').onclick = handlePayment;
+
+// Константы для статусов
+const Status = {
+    CREATED: 'CREATED',
+    PROCESSING: 'PROCESSING',
+    CONFIRMED: 'CONFIRMED',
+    EXPIRED: 'EXPIRED',
+    FAILED: 'PAYMENT_FAILED'
+};
+
+async function handlePayment() {
+    const paymentBtn = document.querySelector('.form__btn');
+    const cardNumber = document.getElementById('card_number').value.trim();
+    const expiration = document.getElementById('expiration').value.trim();
+    const code = document.getElementById('code').value.trim();
+    const orderId = localStorage.getItem('orderId');
+
+    if (!cardNumber || !expiration || !code || !orderId) {
+        alert('Пожалуйста, заполните все данные');
+        return;
+    }
+
+    const paymentData = {
+        cardNumber,
+        expiration,
+        code,
+        orderId: parseInt(orderId, 10)
+    };
+
+    try {
+        // Блокируем кнопку на время запроса
+        paymentBtn.style.opacity = '0.5';
+        paymentBtn.style.pointerEvents = 'none';
+        paymentBtn.innerText = 'Отправка...';
+
+        const response = await fetchWithAuth('http://localhost:8000/api/payment', {
+            method: 'POST',
+            body: JSON.stringify(paymentData)
+        });
+
+        if (response && response.ok) {
+            paymentBtn.innerText = 'Ожидание подтверждения...';
+            // Запускаем опрос сервера
+            startPollingStatus(orderId, paymentBtn);
+        } else {
+            throw new Error('Ошибка при отправке данных');
+        }
+    } catch (error) {
+        console.error('Ошибка платежа:', error);
+        alert('Не удалось отправить данные карты');
+        resetButton(paymentBtn);
+    }
+}
+
+async function startPollingStatus(orderId, btnElement) {
+    const pollInterval = 3000; 
+    
+    const checkStatus = async () => {
+        try {
+            const response = await fetchWithAuth(`http://localhost:8000/api/orders/status/${orderId}`, {
+                method: 'GET'
+            });
+
+            if (!response.ok) throw new Error('Ошибка сети');
+
+            // ТЕПЕРЬ ПАРСИМ КАК JSON
+            const data = await response.json(); 
+            const currentStatus = data.status; // Достаем статус из объекта {"status": "..."}
+            
+            console.log(`Статус заказа ${orderId}: ${currentStatus}`);
+
+            switch (currentStatus) {
+                case Status.CONFIRMED:
+                    alert('Оплата успешно подтверждена!');
+                    window.location.href = 'index.html';
+                    break;
+
+                case Status.PAYMENT_FAILED:
+                    alert('Ошибка! Платеж отклонен.');
+                    resetButton(btnElement);
+                    break;
+
+                case Status.EXPIRED:
+                    alert('Срок оплаты заказа истек.');
+                    resetButton(btnElement);
+                    break;
+
+                case Status.PROCESSING:
+                case Status.CREATED:
+                    // Рекурсивный вызов через 3 секунды
+                    setTimeout(checkStatus, pollInterval);
+                    break;
+
+                default:
+                    console.warn('Неизвестный статус:', currentStatus);
+                    setTimeout(checkStatus, pollInterval);
+            }
+        } catch (error) {
+            console.error('Ошибка опроса:', error);
+            setTimeout(checkStatus, 5000); // При ошибке сети ждем чуть дольше
+        }
+    };
+
+    checkStatus();
+}
+
+// Вспомогательная функция для возврата кнопки в рабочее состояние
+function resetButton(btn) {
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+    btn.innerText = 'Подтвердить оплату';
+}

@@ -29,8 +29,8 @@ header{
     height: 65px;
     margin: 0 auto;
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
 }
 
 .logo{
@@ -46,38 +46,7 @@ header{
     margin-left: 8px;
 }
 
-.logo__title a{
-    text-decoration: none;
-}
-
-.logo__img{
-    width: 36px;
-    height: 36px;
-}
-
 .header__buttons{
-    display: flex;
-    margin: 0 auto;
-    max-width: 700px;
-    width: 100%;
-    justify-content: space-between;
-}
-
-.header__button{
-    font-size: 20px;
-    font-weight: 400;
-    padding: 11px;
-    border: 0px solid;
-    border-radius: 10px;
-    text-decoration: none;
-}
-
-.header__button:hover{
-    cursor: pointer;
-    background-color: #f2f2f2;
-}
-
-.header__registration{
     display: flex;
 }
 
@@ -87,7 +56,6 @@ header{
     padding: 11px 12px;
     border: 0px solid;
     border-radius: 10px;
-    text-decoration: none;
 }
 
 .sign_in_btn:hover{
@@ -104,10 +72,25 @@ header{
     border-radius: 10px;
     background-color: #3C83F6;
     margin-left: 8px;
-    text-decoration: none;
 }
 
 .sign_up_btn:hover{
+    cursor: pointer;
+    background-color: #4a8cf7;
+}
+
+.profile{
+    font-size: 14px;
+    font-weight: 400;
+    color: #fff;
+    padding: 11px 12px;
+    border: 0px solid;
+    border-radius: 10px;
+    background-color: #3C83F6;
+    margin-left: 8px;
+}
+
+.profile:hover{
     cursor: pointer;
     background-color: #4a8cf7;
 }
@@ -230,6 +213,10 @@ header{
     margin-bottom: 30px;
 }
 
+.btn_container{
+    display: flex;
+}
+
 .changes__submit {
     width: 200px;
     font-weight: 400;
@@ -239,6 +226,7 @@ header{
     border-radius: 10px;
     background-color: #3C83F6;
     color: #fff;
+    text-align: center;
 }
 
 .changes__submit:hover{
@@ -254,6 +242,7 @@ header{
     border-radius: 10px;
     background-color: #fff;
     margin-left: 10px;
+    text-align: center;
 }
 
 .changes__cancel:hover{
@@ -271,6 +260,7 @@ header{
     border: 1px solid #E1E5EA;
     border-radius: 12px;
     padding: 17px;
+    margin-bottom: 10px;
 }
 
 .card__container{

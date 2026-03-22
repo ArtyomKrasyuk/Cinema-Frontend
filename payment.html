@@ -28,15 +28,15 @@
                 <div class="payment form">
                     <div class="form__title">Данные для оплаты</div>
                     <div class="form__label">Номер карты</div>
-                    <input type="text" class="form__input">
+                    <input type="text" class="form__input" id="card_number">
                     <div class="form__flex_container">
                         <div>
                             <div class="form__label">Срок</div>
-                            <input type="text" class="form__input short_input">
+                            <input type="text" class="form__input short_input" id="expiration">
                         </div>
                         <div>
                             <div class="form__label">Код</div>
-                            <input type="text" class="form__input short_input">
+                            <input type="text" class="form__input short_input" id="code">
                         </div>
                     </div>
                     <div class="form__btn">Подтвердить оплату</div>
@@ -46,7 +46,7 @@
                     <div class="form__subtitle">Фильм</div>
                     <div class="form__text" id="movie">Дюна: Часть вторая</div>
                     <div class="form__subtitle">Кинотеатр</div>
-                    <div class="form__text" id="cimema">Кинотеатр Галерея</div>
+                    <div class="form__text" id="cinema">Кинотеатр Галерея</div>
                     <div class="form__subtitle">Сеанс</div>
                     <div class="form__text" id="datetime">18.01.2026, 19:00 (3D)</div>
                     <div class="form__selected_seats">
@@ -58,7 +58,7 @@
                     </div>
                     <div class="form__price">
                         <div class="price__text">К оплате:</div>
-                        <div class="price__text">1000 ₽</div>
+                        <div class="price__text" id="price">1000 ₽</div>
                     </div>
                 </div>
             </div>

@@ -308,7 +308,7 @@ function initOrderForm() {
 document.querySelector('.form__btn').onclick = createOrder;
 
 async function createOrder() {
-    const [day, month, year] = date.split('.');
+    const [day, month, year] = showtime.date.split('.');
     let dateFormatted = `${year}-${month}-${day}`;
     let price = 0;
     let seats = [];
@@ -326,7 +326,7 @@ async function createOrder() {
         'movieTitle': showtime.movieTitle,
         'cinemaTitle': showtime.cinemaTitle,
         'hallNumber': showtime.hall.number,
-        'time': `${dateFormatted} ${showtime.time}`,
+        'time': `${dateFormatted} ${showtime.time}:00`,
         'price': price,
         'seats': seats
     }
@@ -342,13 +342,13 @@ async function createOrder() {
         localStorage.setItem('expiresAt', result.expiresAt);
         localStorage.setItem('price', result.price);
 
-        localStorage.setItem('selectedSeats', selectedSeats);
+        localStorage.setItem('selectedSeats', JSON.stringify(selectedSeats));
         localStorage.setItem('movieTitle', showtime.movieTitle);
         localStorage.setItem('cinemaTitle', showtime.cinemaTitle);
         localStorage.setItem('date', showtime.date);
         localStorage.setItem('time', showtime.time);
         localStorage.setItem('hallType', showtime.hall.hallType);
-        window.location.href = 'payment';
+        window.location.href = 'payment.html';
     }
     else alert('Ошибка при создании заказа');
 }
@@ -458,14 +458,10 @@ async function checkAuth() {
 
     if (response.status === 401 && refreshToken) {
       const refreshResponse = await fetch(`http://localhost:${port}/refresh`, {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json;charset=utf-8'
-        },
-        body: {
-            token: JSON.stringify(refreshToken)
-        }
-      });
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json;charset=utf-8' },
+            body: JSON.stringify({ token: refreshToken })
+        });
 
       if (!refreshResponse.ok) {
         logout();

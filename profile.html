@@ -10,20 +10,15 @@
 <body>
     <header>
         <div class="header__container">
-            <div href="index.html" class="logo">
-                <img src="img/movie.png" alt="logo" class="logo__img">
-                <p class="logo__title"><a href="index.html">BigCinema</a></p>
+            <a href="index.html" class="logo">
+                <img src="img/logo.png" alt="logo" class="logo__img">
+                <h1 class="logo__title">CinemaBook</h1>
+            </a>
+            <div class="header__buttons">
+                <div class="sign_in_btn">Войти</div>
+                <div class="sign_up_btn">Регистрация</div>
             </div>
-            <nav class="header__buttons">
-                <a href="movies.html" class="header__button">Фильмы</a>
-                <a href="form.html" class="header__button">Добавить фильм</a>
-                <a href="news_catalog.html" class="header__button">Новости</a>
-                <a href="about_us.html" class="header__button">О сайте</a>
-            </nav>
-            <div class="header__registration">
-                <a href="sign_in.html" class="sign_in_btn">Войти</a>
-                <a href="sign_up.html" class="sign_up_btn">Регистрация</a>
-            </div>
+            <div class="profile" style="display: none;">Личный кабинет</div>
         </div>
     </header>
     <main>
@@ -77,8 +72,10 @@
                             <input type="password" class="input_container__input" />
                         </div>
                     </div>
-                    <button class="changes__submit">Сохранить изменения</button>
-                    <button class="changes__cancel">Отмена</button>
+                    <div class="btn_container">
+                        <div class="changes__submit">Сохранить изменения</div>
+                        <div class="changes__cancel">Отмена</div>
+                    </div>
                 </form>
             </div>
             <div class="profile_card">
@@ -109,8 +106,8 @@
                         </div>
                         <div class="card__row">
                              <p class="card__text">Места:</p>
-                             <div class="card__place">А-5</div> 
-                             <div class="card__place">А-6</div>
+                             <div class="card__place">1-5</div> 
+                             <div class="card__place">1-6</div>
                         </div>
                     </div>
                     <div class="ticket_card__right">
@@ -149,8 +146,8 @@
                         </div>
                         <div class="card__row">
                              <p class="card__text">Места:</p>
-                             <div class="card__place">А-5</div> 
-                             <div class="card__place">А-6</div>
+                             <div class="card__place">2-5</div> 
+                             <div class="card__place">2-6</div>
                         </div>
                     </div>
                     <div class="ticket_card__right">
