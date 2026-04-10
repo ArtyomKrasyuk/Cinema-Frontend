@@ -184,8 +184,8 @@ header{
     margin-bottom: 30px;
 }
 
-.changes__container:first-child{
-    padding-bottom: 20px;
+.line{
+    margin: 20px 0px;
     border-bottom: 1px solid #E1E5EA;
 }
 
