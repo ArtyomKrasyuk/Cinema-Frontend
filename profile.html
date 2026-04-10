@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -50,11 +49,11 @@
                     <div class="changes__container">
                         <div class="changes__input_container">
                             <p class="input_container__title">Имя</p>
-                            <input type="text" class="input_container__input" value="Артём"/>
+                            <input type="text" class="input_container__input" id="firstName" value="Артём"/>
                         </div>
                         <div class="changes__input_container">
                             <p class="input_container__title">Фамилия</p>
-                            <input type="text" class="input_container__input" value="Красюк"/>
+                            <input type="text" class="input_container__input" id="lastName" value="Красюк"/>
                         </div>
                         <div class="changes__input_container">
                             <p class="input_container__title">Email</p>
@@ -69,15 +68,15 @@
                     <div class="changes__container">
                         <div class="changes__input_container">
                             <p class="input_container__title">Текущий пароль</p>
-                            <input type="password" class="input_container__input" />
+                            <input type="password" class="input_container__input" id="currentPassword"/>
                         </div>
                         <div class="changes__input_container">
                             <p class="input_container__title">Новый пароль</p>
-                            <input type="password" class="input_container__input" />
+                            <input type="password" class="input_container__input" id="newPassword"/>
                         </div>
                         <div class="changes__input_container">
                             <p class="input_container__title">Подтвердите пароль</p>
-                            <input type="password" class="input_container__input" />
+                            <input type="password" class="input_container__input" id="confirmPassword"/>
                         </div>
                     </div>
                     <div class="btn_container">
@@ -168,6 +167,11 @@
     <footer>
         <p class="footer__text">Выполнил Красюк Артём Максимович 6403-020302D</p>
     </footer>
+    <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="fonts/Roboto-normal.js"></script>
+    <script src="fonts/Roboto-bold.js"></script>
     <script src="js/profile.js"></script>
 </body>
 </html>

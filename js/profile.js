@@ -1,5 +1,20 @@
 'use strict'
 
+function b64DecodeUnicode(str) {
+    str = str.replace(/-/g, '+').replace(/_/g, '/');
+    while (str.length % 4) {
+        str += '=';
+    }
+    return decodeURIComponent(
+        atob(str)
+            .split('')
+            .map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            })
+            .join('')
+    );
+}
+
 let port = 8000;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -20,12 +35,13 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // Декодируем Payload токена
             const base64Url = accessToken.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const userData = JSON.parse(window.atob(base64));
+            const userData = JSON.parse(b64DecodeUnicode(base64Url));
 
             // Извлекаем данные согласно вашей структуре
             const fullName = userData.name || "Пользователь";
             const email = userData.email || "Email не указан";
+            const firstName = userData.given_name || "Имя не указано";
+            const lastName = userData.family_name || "Фамилия не указана";
 
             // Функция заполнения данных в HTML
             const updateUI = () => {
@@ -34,8 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 displayValues[1].textContent = email;
 
                 // Значения в инпутах (Имя и Email)
-                inputs[0].value = fullName;
-                inputs[1].value = email;
+                inputs[0].value = firstName;
+                inputs[1].value = lastName;
+                inputs[2].value = email;
             };
 
             updateUI();
@@ -66,6 +83,112 @@ document.addEventListener('DOMContentLoaded', () => {
         editForm.classList.add('hidden');
         infoBlock.classList.remove('hidden');
     });
+
+    // Кнопка "Изменить профиль" — отправка PUT-запроса на /profile
+    const changeProfileBtn = document.getElementById('change_profile');
+    if (changeProfileBtn) {
+        changeProfileBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            const firstNameEl = document.getElementById('firstName');
+            const lastNameEl = document.getElementById('lastName');
+
+            const firstName = firstNameEl ? firstNameEl.value.trim() : '';
+            const lastName = lastNameEl ? lastNameEl.value.trim() : '';
+
+            try {
+                const response = await authorizedFetch(`http://localhost:${port}/profile`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ firstName, lastName })
+                });
+
+                if (response && response.ok) {
+                    alert('Профиль успешно обновлён');
+
+                    // После изменения профиля — обновляем токены
+                    try {
+                        const refreshToken = localStorage.getItem("refresh_token");
+                        if (refreshToken) {
+                            const refreshResponse = await fetch(`http://localhost:${port}/refresh`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json;charset=utf-8' },
+                                body: JSON.stringify({ token: refreshToken })
+                            });
+                            if (refreshResponse.ok) {
+                                const data = await refreshResponse.json();
+                                localStorage.setItem("access_token", data.access_token);
+                                localStorage.setItem("refresh_token", data.refresh_token);
+                            } else {
+                                localStorage.clear();
+                                window.location.href = 'sign_in.html';
+                                return;
+                            }
+                        }
+                    } catch (e) {
+                        localStorage.clear();
+                        window.location.href = 'sign_in.html';
+                        return;
+                    }
+
+                    // Обновляем UI: комбинируем имя и фамилию
+                    const fullName = `${firstName} ${lastName}`.trim();
+                    if (displayValues && displayValues[0]) displayValues[0].textContent = fullName || displayValues[0].textContent;
+
+                    if (inputs && inputs[0] && firstName) inputs[0].value = firstName;
+                    if (lastNameEl) lastNameEl.value = lastName;
+
+                    editForm.classList.add('hidden');
+                    infoBlock.classList.remove('hidden');
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    alert(`Ошибка при обновлении профиля: ${errorData.message || 'попробуйте позже'}`);
+                }
+            } catch (err) {
+                console.error('Ошибка сети при обновлении профиля:', err);
+                alert('Не удалось связаться с сервером.');
+            }
+        });
+    }
+
+    // Кнопка "Изменить пароль"
+    const changePasswordBtn = document.getElementById('change_password');
+    if (changePasswordBtn) {
+        changePasswordBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const oldPasswordEl = document.getElementById('currentPassword');
+            const newPasswordEl = document.getElementById('newPassword');
+            const confirmPasswordEl = document.getElementById('confirmPassword');
+
+            const oldPassword = oldPasswordEl ? oldPasswordEl.value : '';
+            const newPassword = newPasswordEl ? newPasswordEl.value : '';
+            const confirmPassword = confirmPasswordEl ? confirmPasswordEl.value : '';
+
+            if (newPassword !== confirmPassword) {
+                alert('Новый пароль и подтверждение не совпадают!');
+                return;
+            }
+
+            try {
+                const response = await authorizedFetch(`http://localhost:${port}/password`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ oldPassword, newPassword })
+                });
+                if (response && response.ok) {
+                    alert('Пароль успешно изменён!');
+                    // Можно очистить поля формы
+                    if (oldPasswordEl) oldPasswordEl.value = '';
+                    if (newPasswordEl) newPasswordEl.value = '';
+                    if (confirmPasswordEl) confirmPasswordEl.value = '';
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    alert(`Ошибка при изменении пароля: ${errorData.message || 'попробуйте позже'}`);
+                }
+            } catch (err) {
+                console.error('Ошибка сети при изменении пароля:', err);
+                alert('Не удалось связаться с сервером.');
+            }
+        });
+    }
 });
 
 loadUserOrders();
@@ -114,6 +237,10 @@ async function loadUserOrders() {
             }
         });
 
+        document.querySelectorAll('.card__download').forEach(elem => {
+            elem.onclick = setTickets;
+        });
+
         // Обновляем счетчики в заголовках
         updateCounter(activeContainer, activeCount);
         updateCounter(historyContainer, historyCount);
@@ -160,11 +287,11 @@ function createTicketHtml(order, isHistory, isCancelled = false) {
                 <div class="card__row">
                     <div class="card__container">
                         <img src="img/calendar16.png" alt="Дата" width="16" height="16"/>
-                        <p class="card__text">${dateStr}</p>
+                        <p class="card__text date">${dateStr}</p>
                     </div>
                     <div class="card__container container_margin">
                         <img src="img/time16.png" alt="Время" width="16" height="16"/>
-                        <p class="card__text">${timeStr}</p>
+                        <p class="card__text time">${timeStr}</p>
                     </div>
                 </div>
                 <div class="card__row">
@@ -320,4 +447,92 @@ async function checkAuth() {
   }
 
   return false;
+}
+
+const { jsPDF } = window.jspdf;
+ 
+function setTickets(e) {
+    // Получаем .ticket_card, в котором была нажата кнопка
+    const ticketCard = e.target.closest('.ticket_card');
+    if (!ticketCard) {
+        alert('Не удалось найти данные билета');
+        return;
+    }
+    // Фильм
+    const movieTitle = ticketCard.querySelector('.card__title')?.textContent?.trim() || '';
+    // Кинотеатр и зал
+    const cinemaInfo = ticketCard.querySelector('.card__text.text_margin')?.textContent?.trim() || '';
+    let cinemaTitle = '', hallNumber = '';
+    const cinemaMatch = cinemaInfo.match(/(.+), Зал (\d+)/);
+    if (cinemaMatch) {
+        cinemaTitle = cinemaMatch[1];
+        hallNumber = cinemaMatch[2];
+    }
+    // Дата
+    const date = ticketCard.querySelector('.date')?.textContent?.trim() || '';
+    // Время
+    const time = ticketCard.querySelector('.time')?.textContent?.trim() || '';
+    // Места (берём все .card__place)
+    const places = Array.from(ticketCard.querySelectorAll('.card__place')).map(el => el.textContent.trim());
+    let seatRow = '', seatNumber = '';
+    if (places.length > 0) {
+        [seatRow, seatNumber] = places[0].split('-');
+    }
+    // Цена
+    const price = ticketCard.querySelector('.card__price')?.textContent?.replace(/[^\d]/g, '') || '';
+    // Номер билета (можно сгенерировать или взять из данных)
+    const ticketNumber = 'CIN' + Math.floor(Math.random() * 1000000);
+    // Имя пользователя (можно взять из профиля)
+    const userName = document.querySelector('#firstName')?.value + ' ' + document.querySelector('#lastName')?.value;
+
+    const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+    });
+    doc.setFont('Roboto', 'normal');
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let y = 15;
+
+    // Верхний блок
+    doc.setFillColor(0, 102, 204);
+    doc.rect(0, y, pageWidth, 25, 'F');
+    doc.setFontSize(40);
+    doc.setTextColor(255, 255, 255);
+    doc.text('БИЛЕТ В КИНО', pageWidth / 2, y + 17, { align: 'center' });
+
+    // Основная информация
+    doc.setFontSize(18);
+    doc.setTextColor(0, 0, 0);
+    let infoY = y + 40;
+    doc.text(`Фильм: ${movieTitle}`, 20, infoY);
+    doc.text(`Кинотеатр: ${cinemaTitle}`, 20, infoY + 12);
+    doc.text(`Зал: ${hallNumber}`, 20, infoY + 24);
+    doc.text(`Места: ${places.join(', ')}`, 20, infoY + 36);
+    doc.text(`Дата: ${date}   Время: ${time}`, 20, infoY + 48);
+    doc.text(`Покупатель: ${userName}`, 20, infoY + 60);
+    doc.text(`Цена: ${price} ₽`, 20, infoY + 72);
+    doc.text(`Номер билета: ${ticketNumber}`, 20, infoY + 84);
+
+    // Генерация QR-кода
+    const qrDiv = document.createElement('div');
+    new QRCode(qrDiv, {
+        text: ticketNumber,
+        width: 256,
+        height: 256,
+        correctLevel: QRCode.CorrectLevel.H
+    });
+    setTimeout(() => {
+        const qrImg = qrDiv.querySelector('img') || qrDiv.querySelector('canvas');
+        if (qrImg) {
+            let qrDataUrl;
+            if (qrImg.tagName === 'IMG') {
+                qrDataUrl = qrImg.src;
+            } else {
+                qrDataUrl = qrImg.toDataURL('image/png');
+            }
+            doc.addImage(qrDataUrl, 'PNG', 150, infoY + 10, 80, 80);
+        }
+        doc.save(`ticket_${ticketNumber}.pdf`);
+    }, 200);
 }
