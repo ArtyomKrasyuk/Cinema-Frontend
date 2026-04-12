@@ -84,7 +84,13 @@ async function getShowtimes(){
         uniqueTimesSorted.sort((a, b) => new Date(a) - new Date(b));
 
         if(uniqueTimesSorted.length != 0){
-            const [year, month, day] = uniqueTimesSorted[0].split('-');
+            let [year, month, day] = [null, null, null];
+            if(localStorage.getItem('selected_time') != null) {
+                [year, month, day] = localStorage.getItem('selected_time').split('-');
+            }
+            else {
+                [year, month, day] = uniqueTimesSorted[0].split('-');
+            }
 
             const pickr = window.flatpickr('#date__value', {
             'locale': 'ru',

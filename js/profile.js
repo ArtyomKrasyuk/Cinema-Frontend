@@ -255,8 +255,15 @@ function createTicketHtml(order, isHistory, isCancelled = false) {
     const dateStr = dateObj.toLocaleDateString('ru-RU');
     const timeStr = dateObj.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
     
+    // Сортируем места по ряду и номеру
+    const sortedSeats = [...order.seats].sort((a, b) => {
+        if (a.seatRow !== b.seatRow) {
+            return a.seatRow - b.seatRow;
+        }
+        return a.seatNumber - b.seatNumber;
+    });
     // Генерируем блоки для мест (ряд-место)
-    const seatsHtml = order.seats
+    const seatsHtml = sortedSeats
         .map(s => `<div class="card__place">${s.seatRow}-${s.seatNumber}</div>`)
         .join('');
 

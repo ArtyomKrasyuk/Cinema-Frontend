@@ -23,6 +23,9 @@ let port = 8000;
 let showtimesByMovie = new Map();
 let uniqueGenres = new Set();
 let uniqueTimes = new Set();
+let currentPage = 1;
+let totalPages = 1;
+const MOVIES_PER_PAGE = 12;
 
 document.querySelector('.sign_in_btn').onclick = function(e){
     window.location.href = 'sign_in.html';
@@ -80,10 +83,59 @@ async function getShowtimes(){
         dateFormat: 'd.m.Y'
     });
 
-    document.querySelector('#date__value').onchange = setShowtimes;
+    document.querySelector('#date__value').onchange = function() {
+        currentPage = 1;
+        setShowtimes();
+    };
     document.querySelector('.date__reset').onclick = pickr.clear;
     }
     else alert('Ошибка получения киносеансов');
+}
+
+function renderPagination(total, current) {
+    const container = document.querySelector('.movies__container');
+    let pagination = document.querySelector('.pagination');
+    if (!pagination) {
+        pagination = document.createElement('div');
+        pagination.className = 'pagination';
+        container.parentNode.appendChild(pagination);
+    }
+    pagination.innerHTML = '';
+    if (total <= 1) {
+        pagination.style.display = 'none';
+        return;
+    }
+    pagination.style.display = 'flex';
+    // Prev
+    const prev = document.createElement('span');
+    prev.textContent = '<';
+    prev.className = 'pagination__arrow';
+    prev.onclick = () => { if (current > 1) { currentPage--; setShowtimes(); } };
+    pagination.appendChild(prev);
+    // Pages
+    for (let i = 1; i <= total; i++) {
+        if (i === 1 || i === total || Math.abs(i - current) <= 1) {
+            const page = document.createElement('span');
+            page.textContent = i;
+            page.className = 'pagination__page' + (i === current ? ' active' : '');
+            page.onclick = () => { currentPage = i; setShowtimes(); };
+            pagination.appendChild(page);
+        } else if (
+            (i === 2 && current > 3) ||
+            (i === total - 1 && current < total - 2)
+        ) {
+            const dots = document.createElement('span');
+            dots.textContent = '...';
+            dots.className = 'pagination__dots';
+            pagination.appendChild(dots);
+        }
+    }
+    // Next
+    const next = document.createElement('span');
+    next.textContent = '>';
+    next.className = 'pagination__arrow';
+    next.onclick = () => { if (current < total) { currentPage++; setShowtimes(); } };
+    pagination.appendChild(next);
 }
 
 function setShowtimes(){
@@ -93,13 +145,21 @@ function setShowtimes(){
     if(date != ''){
         const [day, month, year] = date.split('.');
         date = `${year}-${month}-${day}`;
+        localStorage.setItem('selected_time', date);
     }
     let genre = document.querySelector('.active_genre').innerHTML;
-    let count = 0;
+    let filtered = [];
     for(const [key, value] of showtimesByMovie){
         if(genre != 'Все жанры' && !value.movie.genres.includes(genre))continue;
         if(date != '' && !value.time.includes(date))continue;
-
+        filtered.push(value);
+    }
+    let count = filtered.length;
+    totalPages = Math.ceil(count / MOVIES_PER_PAGE) || 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+    const start = (currentPage - 1) * MOVIES_PER_PAGE;
+    const end = start + MOVIES_PER_PAGE;
+    filtered.slice(start, end).forEach(value => {
         let str = 
         `
         <div class="movie">
@@ -114,12 +174,10 @@ function setShowtimes(){
             </div>
         </div>
         `;
-
         container.insertAdjacentHTML('beforeend', str);
-        count++;
-    }
-
+    });
     document.querySelector('.movies__title').innerHTML = `Сейчас в кино (${count})`;
+    renderPagination(totalPages, currentPage);
 }
 
 function setGenres(){
@@ -139,6 +197,7 @@ function setGenres(){
         genre.onclick = function(e){
             document.querySelector('.active_genre').classList.toggle("active_genre");
             e.currentTarget.classList.toggle("active_genre");
+            currentPage = 1;
             setShowtimes();
         }
     });
