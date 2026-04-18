@@ -226,7 +226,7 @@ async function loadUserOrders() {
         orders.forEach(order => {
             const orderDate = new Date(order.time);
             const isExpired = orderDate < now;
-            const isCancelled = order.state === 'CANCELLED';
+            const isCancelled = order.state === 'REFUNDED';
 
             if (!isExpired && !isCancelled) {
                 activeContainer.insertAdjacentHTML('beforeend', createTicketHtml(order, false));
@@ -374,8 +374,15 @@ function updateCounter(container, count) {
 async function cancelOrder(orderId) {
     // 1. Подтверждение действия у пользователя
     const isConfirmed = confirm("Вы уверены, что хотите отменить бронирование? Средства будут возвращены на ваш счет.");
-    
     if (!isConfirmed) return;
+
+    // Блокируем все кнопки отмены
+    const cancelBtns = document.querySelectorAll('.card__cancel');
+    cancelBtns.forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        btn.style.pointerEvents = 'none';
+    });
 
     try {
         // 2. Отправка запроса через нашу обертку с авторизацией
@@ -384,19 +391,73 @@ async function cancelOrder(orderId) {
         });
 
         if (response.ok) {
-            alert("Заказ успешно отменен. Средства возвращены.");
-            
-            // 3. Перерисовываем интерфейс, чтобы заказ переместился в историю со статусом CANCELLED
-            await renderOrders(); 
+            // Опрос статуса возврата
+            await pollRefundStatus(orderId, cancelBtns);
         } else {
             // Обработка ошибок от сервера (например, если сеанс уже начался и отмена невозможна)
             const errorData = await response.json().catch(() => ({}));
             alert(`Ошибка при отмене: ${errorData.message || "попробуйте позже"}`);
+            // Разблокируем кнопки
+            cancelBtns.forEach(btn => {
+                btn.disabled = false;
+                btn.style.opacity = '';
+                btn.style.pointerEvents = '';
+            });
         }
     } catch (error) {
         console.error("Ошибка сети при отмене заказа:", error);
         alert("Не удалось связаться с сервером для отмены бронирования.");
+        // Разблокируем кнопки
+        cancelBtns.forEach(btn => {
+            btn.disabled = false;
+            btn.style.opacity = '';
+            btn.style.pointerEvents = '';
+        });
     }
+}
+
+async function pollRefundStatus(orderId, cancelBtns) {
+    const pollInterval = 1000; // 1 секунда
+    const maxAttempts = 10; // ~10 секунд
+    let attempts = 0;
+    let finished = false;
+    while (attempts < maxAttempts && !finished) {
+        try {
+            const response = await authorizedFetch(`http://localhost:${port}/api/orders/status/${orderId}`, {
+                method: 'GET'
+            });
+            if (!response.ok) throw new Error('Ошибка сети');
+            const data = await response.json(); 
+            const currentStatus = data.status?.toUpperCase?.() || '';
+            if (currentStatus === 'REFUNDED') {
+                alert('Возврат успешно выполнен!');
+                await loadUserOrders();
+                finished = true;
+            } else if (currentStatus === 'CONFIRMED') {
+                // продолжаем опрос
+                attempts++;
+                if (attempts >= maxAttempts) {
+                    alert('Возврат пока не подтверждён. Попробуйте позже.');
+                } else {
+                    await new Promise(res => setTimeout(res, pollInterval));
+                }
+            } else {
+                // Другие статусы — продолжаем опрос
+                attempts++;
+                await new Promise(res => setTimeout(res, pollInterval));
+            }
+        } catch (error) {
+            console.error('Ошибка опроса возврата:', error);
+            attempts++;
+            await new Promise(res => setTimeout(res, pollInterval));
+        }
+    }
+    // Разблокируем кнопки
+    cancelBtns.forEach(btn => {
+        btn.disabled = false;
+        btn.style.opacity = '';
+        btn.style.pointerEvents = '';
+    });
 }
 
 async function checkAuth() {
