@@ -335,5 +335,57 @@ function isInt(str) {
     return !isNaN(str) && !isNaN(parseInt(str));
 }
 
+// --- Movie title suggestions ---
+let suggestionBox;
+movieTitleInput.addEventListener('input', async function(e) {
+    const query = movieTitleInput.value.trim();
+    if (query.length <= 2) {
+        if (suggestionBox) suggestionBox.remove();
+        return;
+    }
+    try {
+        // Передаём строку через query-параметр
+        const response = await fetch(`http://localhost:${port}/api/movies/suggestions?query=${encodeURIComponent(query)}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json;charset=utf-8' }
+        });
+        if (response.ok) {
+            const suggestions = await response.json();
+            showSuggestions(suggestions);
+        } else {
+            if (suggestionBox) suggestionBox.remove();
+        }
+    } catch (err) {
+        if (suggestionBox) suggestionBox.remove();
+    }
+});
+
+function showSuggestions(suggestions) {
+    if (suggestionBox) suggestionBox.remove();
+    if (!Array.isArray(suggestions) || suggestions.length === 0) return;
+    suggestionBox = document.createElement('div');
+    suggestionBox.className = 'suggestion-box';
+    suggestionBox.style.width = movieTitleInput.offsetWidth + 'px';
+    suggestionBox.style.left = movieTitleInput.getBoundingClientRect().left + window.scrollX + 'px';
+    suggestionBox.style.top = (movieTitleInput.getBoundingClientRect().bottom + window.scrollY) + 'px';
+    suggestions.forEach(title => {
+        const item = document.createElement('div');
+        item.textContent = title;
+        item.onmousedown = function(e) {
+            e.preventDefault();
+            movieTitleInput.value = title;
+            suggestionBox.remove();
+        };
+        suggestionBox.appendChild(item);
+    });
+    document.body.appendChild(suggestionBox);
+}
+
+document.addEventListener('click', function(e) {
+    if (suggestionBox && !movieTitleInput.contains(e.target)) {
+        suggestionBox.remove();
+    }
+});
+
 entrypoint();
 

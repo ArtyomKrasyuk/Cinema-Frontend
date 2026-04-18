@@ -296,3 +296,23 @@ footer{
     font-weight: 400;
     padding-top: 22px;
 }
+
+.suggestion-box {
+    position: absolute;
+    background: #fff;
+    border: 1px solid #E1E5EA;
+    border-radius: 0 0 10px 10px;
+    width: 100%;
+    z-index: 1002;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    max-height: 220px;
+    overflow-y: auto;
+}
+.suggestion-box div {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.suggestion-box div:hover {
+    background: #f2f2f2;
+}
