@@ -29,7 +29,7 @@ document.querySelector('.form__btn').onclick = async function(e){
         const data = await response.json();
         localStorage.setItem("access_token", data.access_token);
         localStorage.setItem("refresh_token", data.refresh_token);
-        window.location.href = 'index.html';
+        window.location.href = 'admin.html';
     }
     else{
         alert('Неправильный логин или пароль');
