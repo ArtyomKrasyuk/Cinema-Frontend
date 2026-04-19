@@ -231,7 +231,6 @@ async function startPollingStatus(orderId, btnElement) {
 
             if (!response.ok) throw new Error('Ошибка сети');
 
-            // ТЕПЕРЬ ПАРСИМ КАК JSON
             const data = await response.json(); 
             const currentStatus = data.status; // Достаем статус из объекта {"status": "..."}
             

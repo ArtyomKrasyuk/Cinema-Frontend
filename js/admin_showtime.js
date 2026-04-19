@@ -70,13 +70,14 @@ exit.onclick = function(e){
 }
 
 async function entrypoint() {
+    checkAuth();
     getCinemas();
     setButtons();
 }
 
 async function getCinemas(){
     let url = `http://127.0.0.1:${port}/api/cinemas`;
-    let response = await fetch(url, {
+    let response = await fetchWithAuth(url, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
@@ -111,7 +112,7 @@ async function getCinemas(){
 
 async function getShowtimes(){
     let url = `http://127.0.0.1:${port}/api/showtimes`;
-    let response = await fetch(url, {
+    let response = await fetchWithAuth(url, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
@@ -267,7 +268,7 @@ async function saveShowtime() {
     };
     console.log(data);
     let url = `http://localhost:${port}/api/showtimes`;
-    let response = await fetch(url, {
+    let response = await fetchWithAuth(url, {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
@@ -300,7 +301,7 @@ async function updateShowtime() {
     };
     console.log(data);
     let url = `http://localhost:${port}/api/showtimes/${formId.innerHTML}`;
-    let response = await fetch(url, {
+    let response = await fetchWithAuth(url, {
         method: 'PUT',
         body: JSON.stringify(data),
         headers: {
@@ -318,7 +319,7 @@ async function updateShowtime() {
 async function setDeleteButton(e){
     let id = e.currentTarget.parentElement.parentElement.querySelector('.showtime__id').innerHTML;
     let url = `http://localhost:${port}/api/showtimes/${id}`;
-    let response = await fetch(url, {
+    let response = await fetchWithAuth(url, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
@@ -344,8 +345,7 @@ movieTitleInput.addEventListener('input', async function(e) {
         return;
     }
     try {
-        // Передаём строку через query-параметр
-        const response = await fetch(`http://localhost:${port}/api/movies/suggestions?query=${encodeURIComponent(query)}`, {
+        const response = await fetchWithAuth(`http://localhost:${port}/api/movies/suggestions?query=${encodeURIComponent(query)}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json;charset=utf-8' }
         });
@@ -386,6 +386,134 @@ document.addEventListener('click', function(e) {
         suggestionBox.remove();
     }
 });
+
+async function checkAuth() {
+  const accessToken = localStorage.getItem("access_token");
+  const refreshToken = localStorage.getItem("refresh_token");
+
+  if (!accessToken) {
+    window.location.href = 'admin_sign_in.html';
+    return;
+  }
+
+  try {
+    const response = await fetch(`http://localhost:${port}/test/admin`, {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer " + accessToken,
+        'Content-Type': 'application/json;charset=utf-8'
+      }
+    });
+
+    if (response.status === 200) {
+      return true;
+    }
+
+    if (response.status === 401 && refreshToken) {
+      const refreshResponse = await fetch(`http://localhost:${port}/refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json;charset=utf-8' },
+            body: JSON.stringify({ token: refreshToken })
+        });
+
+      if (!refreshResponse.ok) {
+        logout();
+        window.location.href = 'admin_sign_in.html';
+        return;
+      }
+
+      const data = await refreshResponse.json();
+
+      localStorage.setItem("access_token", data.access_token);
+      localStorage.setItem("refresh_token", data.refresh_token);
+
+      const response = await fetch(`http://localhost:${port}/test/admin`, {
+        method: "GET",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("access_token")
+        }
+      });
+
+      if (response.status === 200) {
+        return true;
+      }
+    }
+
+  } catch (e) {
+    alert("Ошибка аутентификации " + e);
+  }
+
+    window.location.href = 'admin_sign_in.html';
+    return;
+}
+
+async function fetchWithAuth(url, options = {}) {
+    // Функция для выполнения запроса с текущим access token
+    async function executeRequest(token) {
+        return fetch(url, {
+        ...options,
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json;charset=utf-8'
+        }
+        });
+    }
+
+    // Получаем текущий access token
+    let accessToken = localStorage.getItem('access_token');
+    
+    if (!accessToken) {
+        window.location.href = 'admin_sign_in.html';
+        return;
+    }
+
+    // Выполняем первый запрос
+    let response = await executeRequest(accessToken);
+
+    // Если запрос успешен, возвращаем ответ
+    if (response.status !== 401) {
+        return response;
+    }
+
+    // Если получили 401, пробуем обновить токен
+    const refreshToken = localStorage.getItem('refresh_token');
+    
+    if (!refreshToken) {
+        logout();
+        window.location.href = 'admin_sign_in.html';
+        return;
+    }
+
+    // Обновляем токены
+    const refreshResponse = await fetch(`http://localhost:${port}/refresh`, {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify({ token: refreshToken })
+    });
+
+    if (!refreshResponse.ok) {
+        logout();
+        window.location.href = 'admin_sign_in.html';
+        return;
+    }
+
+    const data = await refreshResponse.json();
+
+    // Сохраняем новые токены
+    localStorage.setItem('access_token', data.access_token);
+    localStorage.setItem('refresh_token', data.refresh_token);
+
+    // Повторяем исходный запрос с новым токеном
+    return await executeRequest(data.access_token);
+
+}
+
+function logout() {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
+}
 
 entrypoint();
 

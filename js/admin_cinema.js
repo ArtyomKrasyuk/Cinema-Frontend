@@ -71,14 +71,15 @@ document.getElementById('hall_change_btn').onclick = updateHall;
 document.getElementById('hall_delete_btn').onclick = deleteHall;
 
 async function getCinemas(){
+    checkAuth();
     let url = `http://127.0.0.1:${port}/api/cinemas`;
-    let response = await fetch(url, {
+    let response = await fetchWithAuth(url, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
         }
     });
-    if(response.ok){
+    if(response && response.ok){
         let body = await response.text();
         let json = JSON.parse(body);
         cinemas = [];
@@ -109,14 +110,14 @@ async function getCinemas(){
 async function saveCinema() {
     let data = {'title': formCinemaTitle.value, 'address': formCinemaAddress.value};
     let url = `http://localhost:${port}/api/cinemas`;
-    let response = await fetch(url, {
+    let response = await fetchWithAuth(url, {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
         }
     });
-    if(response.ok) {
+    if(response && response.ok) {
         alert('Успешно');
         overlay.style.display = 'none';
         getCinemas();
@@ -127,14 +128,14 @@ async function saveCinema() {
 async function changeCinema() {
     let data = {'title': formCinemaTitle.value, 'address': formCinemaAddress.value};
     let url = `http://localhost:${port}/api/cinemas/${formId.innerHTML}`;
-    let response = await fetch(url, {
+    let response = await fetchWithAuth(url, {
         method: 'PUT',
         body: JSON.stringify(data),
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
         }
     });
-    if(response.ok) {
+    if(response && response.ok) {
         alert('Успешно');
         overlay.style.display = 'none';
         getCinemas();
@@ -195,13 +196,13 @@ function setChangeButton(e){
 async function deleteCinema(e){
     let id = e.currentTarget.parentElement.parentElement.querySelector('.cinema__id').innerHTML;
     let url = `http://localhost:${port}/api/cinemas/${id}`;
-    let response = await fetch(url, {
+    let response = await fetchWithAuth(url, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
         }
     });
-    if(response.ok) {
+    if(response && response.ok) {
         alert('Успешно');
         getCinemas();
     }
@@ -411,13 +412,13 @@ async function getHall(e){
     let deleteFlag = e.currentTarget.id == 'hall_delete' ? true : false;
     let hallId = document.getElementById('hall_select').value;
     let url = `http://127.0.0.1:${port}/api/halls/${hallId}`;
-    let response = await fetch(url, {
+    let response = await fetchWithAuth(url, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
         }
     });
-    if(response.ok){
+    if(response && response.ok){
         let body = await response.text();
         let json = JSON.parse(body);
         let seats = [];
@@ -438,13 +439,13 @@ async function getHall(e){
 
 async function getHallTypes() {
     let url = `http://127.0.0.1:${port}/api/hall-types`;
-    let response = await fetch(url, {
+    let response = await fetchWithAuth(url, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
         }
     });
-    if(response.ok){
+    if(response && response.ok){
         let body = await response.text();
         let json = JSON.parse(body);
         hallTypes = [];
@@ -539,14 +540,14 @@ function createSchema(deleteFlag){
 
 async function saveHall(){
     let url = `http://localhost:${port}/api/halls`;
-    let response = await fetch(url, {
+    let response = await fetchWithAuth(url, {
         method: 'POST',
         body: JSON.stringify(newHall),
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
         }
     });
-    if(response.ok) {
+    if(response && response.ok) {
         alert('Успешно');
         getCinemas();
     }
@@ -556,14 +557,14 @@ async function saveHall(){
 async function updateHall(){
     let hallId = document.getElementById('hall_select').value;
     let url = `http://localhost:${port}/api/halls/${hallId}`;
-    let response = await fetch(url, {
+    let response = await fetchWithAuth(url, {
         method: 'PUT',
         body: JSON.stringify(newHall),
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
         }
     });
-    if(response.ok) {
+    if(response && response.ok) {
         alert('Успешно');
     }
     else alert('Ошибка при изменении кинозала');
@@ -572,17 +573,145 @@ async function updateHall(){
 async function deleteHall(){
     let hallId = document.getElementById('hall_select').value;
     let url = `http://localhost:${port}/api/halls/${hallId}`;
-    let response = await fetch(url, {
+    let response = await fetchWithAuth(url, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
         }
     });
-    if(response.ok) {
+    if(response && response.ok) {
         alert('Успешно');
         getCinemas();
     }
     else alert('Ошибка при удалении кинозала');
+}
+
+async function checkAuth() {
+  const accessToken = localStorage.getItem("access_token");
+  const refreshToken = localStorage.getItem("refresh_token");
+
+  if (!accessToken) {
+    window.location.href = 'admin_sign_in.html';
+    return;
+  }
+
+  try {
+    const response = await fetch(`http://localhost:${port}/test/admin`, {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer " + accessToken,
+        'Content-Type': 'application/json;charset=utf-8'
+      }
+    });
+
+    if (response.status === 200) {
+      return true;
+    }
+
+    if (response.status === 401 && refreshToken) {
+      const refreshResponse = await fetch(`http://localhost:${port}/refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json;charset=utf-8' },
+            body: JSON.stringify({ token: refreshToken })
+        });
+
+      if (!refreshResponse.ok) {
+        logout();
+        window.location.href = 'admin_sign_in.html';
+        return;
+      }
+
+      const data = await refreshResponse.json();
+
+      localStorage.setItem("access_token", data.access_token);
+      localStorage.setItem("refresh_token", data.refresh_token);
+
+      const response = await fetch(`http://localhost:${port}/test/admin`, {
+        method: "GET",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("access_token")
+        }
+      });
+
+      if (response.status === 200) {
+        return true;
+      }
+    }
+
+  } catch (e) {
+    alert("Ошибка аутентификации " + e);
+  }
+
+    window.location.href = 'admin_sign_in.html';
+    return;
+}
+
+async function fetchWithAuth(url, options = {}) {
+    // Функция для выполнения запроса с текущим access token
+    async function executeRequest(token) {
+        return fetch(url, {
+        ...options,
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json;charset=utf-8'
+        }
+        });
+    }
+
+    // Получаем текущий access token
+    let accessToken = localStorage.getItem('access_token');
+    
+    if (!accessToken) {
+        window.location.href = 'admin_sign_in.html';
+        return;
+    }
+
+    // Выполняем первый запрос
+    let response = await executeRequest(accessToken);
+
+    // Если запрос успешен, возвращаем ответ
+    if (response.status !== 401) {
+        return response;
+    }
+
+    // Если получили 401, пробуем обновить токен
+    const refreshToken = localStorage.getItem('refresh_token');
+    
+    if (!refreshToken) {
+        logout();
+        window.location.href = 'admin_sign_in.html';
+        return;
+    }
+
+    // Обновляем токены
+    const refreshResponse = await fetch(`http://localhost:${port}/refresh`, {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify({ token: refreshToken })
+    });
+
+    if (!refreshResponse.ok) {
+        logout();
+        window.location.href = 'admin_sign_in.html';
+        return;
+    }
+
+    const data = await refreshResponse.json();
+
+    // Сохраняем новые токены
+    localStorage.setItem('access_token', data.access_token);
+    localStorage.setItem('refresh_token', data.refresh_token);
+
+    // Повторяем исходный запрос с новым токеном
+    return await executeRequest(data.access_token);
+
+}
+
+function logout() {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
 }
 
 getCinemas();
