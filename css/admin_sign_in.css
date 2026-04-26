@@ -120,3 +120,51 @@
     text-decoration: none;
     color: #3C83F6;
 }
+
+/*--------------------------modal----------------------------------------*/
+
+.modal {
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal__content {
+    background: #fff;
+    border-radius: 16px;
+    padding: 36px 32px 32px 32px;
+    min-width: 320px;
+    max-width: 90vw;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.13);
+    position: relative;
+    text-align: center;
+}
+.modal__close {
+    position: absolute;
+    right: 18px;
+    top: 12px;
+    font-size: 28px;
+    color: #79879A;
+    cursor: pointer;
+}
+.modal__icon {
+    font-size: 48px;
+    margin-bottom: 18px;
+}
+.modal__icon.success {
+    color: #3C83F6;
+}
+.modal__icon.error {
+    color: #f6483c;
+}
+.modal__message {
+    font-size: 20px;
+    color: #1F2937;
+    margin-bottom: 8px;
+}

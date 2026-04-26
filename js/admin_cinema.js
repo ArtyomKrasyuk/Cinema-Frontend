@@ -104,7 +104,7 @@ async function getCinemas(){
         getHallTypes()
         setCinemas();
     }
-    else alert('Ошибка получения кинотеатров');
+    else showModalResult('Ошибка получения кинотеатров', false);
 }
 
 async function saveCinema() {
@@ -118,11 +118,11 @@ async function saveCinema() {
         }
     });
     if(response && response.ok) {
-        alert('Успешно');
+        showModalResult('Успешно', true);
         overlay.style.display = 'none';
         getCinemas();
     }
-    else alert('Ошибка при добавлении кинотеатра');
+    else showModalResult('Ошибка при добавлении кинотеатра', false);
 }
 
 async function changeCinema() {
@@ -136,11 +136,11 @@ async function changeCinema() {
         }
     });
     if(response && response.ok) {
-        alert('Успешно');
+        showModalResult('Успешно', true);
         overlay.style.display = 'none';
         getCinemas();
     }
-    else alert('Ошибка при редактировании кинотеатра');
+    else showModalResult('Ошибка при редактировании кинотеатра', false);
 }
 
 function setCinemas(){
@@ -203,10 +203,10 @@ async function deleteCinema(e){
         }
     });
     if(response && response.ok) {
-        alert('Успешно');
+        showModalResult('Успешно', true);
         getCinemas();
     }
-    else alert('Ошибка при удалении кинотеатра');
+    else showModalResult('Ошибка при удалении кинотеатра', false);
 }
 
 function setHalls(e){
@@ -331,19 +331,19 @@ document.getElementById('hall_add').onclick = function(e){
     let numberOfRows = document.getElementById('number_of_rows').value;
     let numberOfSeats = document.getElementById('number_of_seats').value;
     if(document.getElementById('cinema_select').value == -1){
-        alert('Необходимо выбрать кинотеатр');
+        showModalResult('Необходимо выбрать кинотеатр', false);
         return;
     }
     if(hallNumber == '' || parseInt(hallNumber) <= 0){
-        alert('Номер зала должен быть числом, большим 0');
+        showModalResult('Номер зала должен быть числом, большим 0', false);
         return;
     }
     if(numberOfRows == '' || parseInt(numberOfRows) <= 0){
-        alert('Количество рядов должно быть числом, большим 0');
+        showModalResult('Количество рядов должно быть числом, большим 0', false);
         return;
     }
     if(numberOfSeats == '' || parseInt(numberOfSeats) <= 0){
-        alert('Количество мест должно быть числом, большим 0');
+        showModalResult('Количество мест должно быть числом, большим 0', false);
         return;
     }
     numberOfRows = parseInt(numberOfRows);
@@ -434,7 +434,7 @@ async function getHall(e){
         );
         createSchema(deleteFlag);
     }
-    else alert('Ошибка получения кинозала');
+    else showModalResult('Ошибка получения кинозала', false);
 }
 
 async function getHallTypes() {
@@ -454,7 +454,7 @@ async function getHallTypes() {
         });
         setHallTypes();
     }
-    else alert('Ошибка получения типов кинозала');
+    else showModalResult('Ошибка получения типов кинозала', false);
 }
 
 function createSchema(deleteFlag){
@@ -548,10 +548,10 @@ async function saveHall(){
         }
     });
     if(response && response.ok) {
-        alert('Успешно');
+        showModalResult('Успешно', true);
         getCinemas();
     }
-    else alert('Ошибка при добавлении кинозала');
+    else showModalResult('Ошибка при добавлении кинозала', false);
 }
 
 async function updateHall(){
@@ -565,9 +565,9 @@ async function updateHall(){
         }
     });
     if(response && response.ok) {
-        alert('Успешно');
+        showModalResult('Успешно', true);
     }
-    else alert('Ошибка при изменении кинозала');
+    else showModalResult('Ошибка при изменении кинозала', false);
 }
 
 async function deleteHall(){
@@ -580,10 +580,10 @@ async function deleteHall(){
         }
     });
     if(response && response.ok) {
-        alert('Успешно');
+        showModalResult('Успешно', true);
         getCinemas();
     }
-    else alert('Ошибка при удалении кинозала');
+    else showModalResult('Ошибка при удалении кинозала', false);
 }
 
 async function checkAuth() {
@@ -639,7 +639,7 @@ async function checkAuth() {
     }
 
   } catch (e) {
-    alert("Ошибка аутентификации " + e);
+    showModalResult("Ошибка аутентификации " + e, false);
   }
 
     window.location.href = 'admin_sign_in.html';
@@ -712,6 +712,36 @@ async function fetchWithAuth(url, options = {}) {
 function logout() {
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
+}
+
+// Модальное окно для сообщений (универсальное)
+function showModalResult(message, isSuccess = null, onClose = null) {
+    const modal = document.getElementById('modal_result');
+    const msg = document.getElementById('modal_message');
+    const icon = document.getElementById('modal_icon');
+    const close = document.getElementById('modal_close');
+    msg.textContent = message;
+    if (isSuccess === true) {
+        icon.innerHTML = '✔️';
+        icon.className = 'modal__icon success';
+    } else if (isSuccess === false) {
+        icon.innerHTML = '❌';
+        icon.className = 'modal__icon error';
+    } else {
+        icon.innerHTML = '';
+        icon.className = 'modal__icon';
+    }
+    modal.style.display = 'flex';
+    close.onclick = function() {
+        modal.style.display = 'none';
+        if (onClose) onClose();
+    };
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+            if (onClose) onClose();
+        }
+    };
 }
 
 getCinemas();

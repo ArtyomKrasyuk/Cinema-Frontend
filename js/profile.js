@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Кнопка "Сохранить" (заглушка для логики обновления)
     btnSubmit.addEventListener('click', () => {
         // Здесь обычно идет fetch запрос к API Keycloak или вашему бэкенду
-        alert("Запрос на сохранение отправлен!");
+        showModalResult("Запрос на сохранение отправлен!", true);
         editForm.classList.add('hidden');
         infoBlock.classList.remove('hidden');
     });
@@ -103,8 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (response && response.ok) {
-                    alert('Профиль успешно обновлён');
-
+                    showModalResult('Профиль успешно обновлён', true);
                     // После изменения профиля — обновляем токены
                     try {
                         const refreshToken = localStorage.getItem("refresh_token");
@@ -141,11 +140,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     infoBlock.classList.remove('hidden');
                 } else {
                     const errorData = await response.json().catch(() => ({}));
-                    alert(`Ошибка при обновлении профиля: ${errorData.message || 'попробуйте позже'}`);
+                    showModalResult(`Ошибка при обновлении профиля: ${errorData.message || 'попробуйте позже'}`, false);
                 }
             } catch (err) {
                 console.error('Ошибка сети при обновлении профиля:', err);
-                alert('Не удалось связаться с сервером.');
+                showModalResult('Не удалось связаться с сервером.', false);
             }
         });
     }
@@ -164,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const confirmPassword = confirmPasswordEl ? confirmPasswordEl.value : '';
 
             if (newPassword !== confirmPassword) {
-                alert('Новый пароль и подтверждение не совпадают!');
+                showModalResult('Новый пароль и подтверждение не совпадают!', false);
                 return;
             }
 
@@ -174,18 +173,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify({ oldPassword, newPassword })
                 });
                 if (response && response.ok) {
-                    alert('Пароль успешно изменён!');
+                    showModalResult('Пароль успешно изменён!', true);
                     // Можно очистить поля формы
                     if (oldPasswordEl) oldPasswordEl.value = '';
                     if (newPasswordEl) newPasswordEl.value = '';
                     if (confirmPasswordEl) confirmPasswordEl.value = '';
                 } else {
                     const errorData = await response.json().catch(() => ({}));
-                    alert(`Ошибка при изменении пароля: ${errorData.message || 'попробуйте позже'}`);
+                    showModalResult(`Ошибка при изменении пароля: ${errorData.message || 'попробуйте позже'}`, false);
                 }
             } catch (err) {
                 console.error('Ошибка сети при изменении пароля:', err);
-                alert('Не удалось связаться с сервером.');
+                showModalResult('Не удалось связаться с сервером.', false);
             }
         });
     }
@@ -193,10 +192,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 loadUserOrders();
 
+document.querySelector('.exit').onclick = function(e){
+    localStorage.clear();
+    window.location.href = 'index.html';
+}
+
 async function loadUserOrders() {
     if(await checkAuth()){
         document.querySelector('.header__buttons').style.display = 'none';
-        document.querySelector('.profile').style.display = 'block';
+        document.querySelector('.exit').style.display = 'block';
     }
     else{
         window.location.href = 'sign_in.html';
@@ -373,7 +377,8 @@ function updateCounter(container, count) {
 
 async function cancelOrder(orderId) {
     // 1. Подтверждение действия у пользователя
-    const isConfirmed = confirm("Вы уверены, что хотите отменить бронирование? Средства будут возвращены на ваш счет.");
+    const message = "Вы уверены, что хотите отменить бронирование? Средства будут возвращены на ваш счет.";
+    const isConfirmed = await showModalResult(message, null, true);
     if (!isConfirmed) return;
 
     // Блокируем все кнопки отмены
@@ -396,7 +401,7 @@ async function cancelOrder(orderId) {
         } else {
             // Обработка ошибок от сервера (например, если сеанс уже начался и отмена невозможна)
             const errorData = await response.json().catch(() => ({}));
-            alert(`Ошибка при отмене: ${errorData.message || "попробуйте позже"}`);
+            showModalResult(`Ошибка при отмене: ${errorData.message || "попробуйте позже"}`, false);
             // Разблокируем кнопки
             cancelBtns.forEach(btn => {
                 btn.disabled = false;
@@ -406,7 +411,7 @@ async function cancelOrder(orderId) {
         }
     } catch (error) {
         console.error("Ошибка сети при отмене заказа:", error);
-        alert("Не удалось связаться с сервером для отмены бронирования.");
+        showModalResult("Не удалось связаться с сервером для отмены бронирования.", false);
         // Разблокируем кнопки
         cancelBtns.forEach(btn => {
             btn.disabled = false;
@@ -430,14 +435,14 @@ async function pollRefundStatus(orderId, cancelBtns) {
             const data = await response.json(); 
             const currentStatus = data.status?.toUpperCase?.() || '';
             if (currentStatus === 'REFUNDED') {
-                alert('Возврат успешно выполнен!');
+                showModalResult('Возврат успешно выполнен!', true);
                 await loadUserOrders();
                 finished = true;
             } else if (currentStatus === 'CONFIRMED') {
                 // продолжаем опрос
                 attempts++;
                 if (attempts >= maxAttempts) {
-                    alert('Возврат пока не подтверждён. Попробуйте позже.');
+                    showModalResult('Возврат пока не подтверждён. Попробуйте позже.', false);
                 } else {
                     await new Promise(res => setTimeout(res, pollInterval));
                 }
@@ -523,7 +528,7 @@ function setTickets(e) {
     // Получаем .ticket_card, в котором была нажата кнопка
     const ticketCard = e.target.closest('.ticket_card');
     if (!ticketCard) {
-        alert('Не удалось найти данные билета');
+        showModalResult('Не удалось найти данные билета', false);
         return;
     }
     // Фильм
@@ -603,4 +608,61 @@ function setTickets(e) {
         }
         doc.save(`ticket_${ticketNumber}.pdf`);
     }, 200);
+}
+
+// Модальное окно для сообщений (универсальное)
+function showModalResult(message, isSuccess = null, isConfirm = false) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('modal_result');
+        const msg = document.getElementById('modal_message');
+        const icon = document.getElementById('modal_icon');
+        const close = document.getElementById('modal_close');
+        const actions = document.getElementById('modal_actions');
+
+        msg.textContent = message;
+        actions.innerHTML = ''; // Очищаем кнопки от предыдущих вызовов
+
+        // Установка иконки
+        if (isSuccess === true) {
+            icon.innerHTML = '✔️';
+            icon.className = 'modal__icon success';
+        } else if (isSuccess === false) {
+            icon.innerHTML = '❌';
+            icon.className = 'modal__icon error';
+        } else {
+            icon.innerHTML = isConfirm ? '❓' : ''; 
+            icon.className = 'modal__icon';
+        }
+
+        // Логика закрытия
+        const closeModal = (result) => {
+            modal.style.display = 'none';
+            resolve(result); // Возвращаем true или false
+        };
+
+        if (isConfirm) {
+            // Создаем кнопку "Да"
+            const btnYes = document.createElement('button');
+            btnYes.textContent = 'Подтвердить';
+            btnYes.className = 'btn btn--confirm';
+            btnYes.onclick = () => closeModal(true);
+
+            // Создаем кнопку "Назад"
+            const btnNo = document.createElement('button');
+            btnNo.textContent = 'Назад';
+            btnNo.className = 'btn btn--cancel';
+            btnNo.onclick = () => closeModal(false);
+
+            actions.appendChild(btnYes);
+            actions.appendChild(btnNo);
+        }
+
+        modal.style.display = 'flex';
+
+        // Обработка закрытия на крестик или фон (считаем как "отмену")
+        close.onclick = () => closeModal(false);
+        window.onclick = (e) => {
+            if (e.target === modal) closeModal(false);
+        };
+    });
 }

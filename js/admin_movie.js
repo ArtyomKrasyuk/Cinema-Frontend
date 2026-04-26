@@ -70,7 +70,7 @@ async function getMovies(){
 
         setMovies();
     }
-    else alert('Ошибка получения фильмов');
+    else showModalResult('Ошибка получения фильмов', false);
 }
 
 function setMovies(){
@@ -112,12 +112,12 @@ async function saveMovie() {
         'description': movieDesc.value
     };
     if(!isInt(movieDuration.value)){
-        alert('Продолжительность должна быть положительным числом');
+        showModalResult('Продолжительность должна быть положительным числом', false);
         return;
     }
     let durationInt = parseInt(movieDuration.value);
     if(durationInt <= 0){
-        alert('Продолжительность должна быть положительным числом');
+        showModalResult('Продолжительность должна быть положительным числом', false);
         return;
     }
     let url = `http://localhost:${port}/api/movies`;
@@ -129,11 +129,11 @@ async function saveMovie() {
         }
     });
     if(response.ok) {
-        alert('Успешно');
+        showModalResult('Успешно', true);
         overlay.style.display = 'none';
         getMovies();
     }
-    else alert('Ошибка при добавлении фильма');
+    else showModalResult('Ошибка при добавлении фильма', false);
 }
 
 async function updateMovie() {
@@ -145,12 +145,12 @@ async function updateMovie() {
         'description': movieDesc.value
     };
     if(!isInt(movieDuration.value)){
-        alert('Продолжительность должна быть положительным числом');
+        showModalResult('Продолжительность должна быть положительным числом', false);
         return;
     }
     let durationInt = parseInt(movieDuration.value);
     if(durationInt <= 0){
-        alert('Продолжительность должна быть положительным числом');
+        showModalResult('Продолжительность должна быть положительным числом', false);
         return;
     }
     let url = `http://localhost:${port}/api/movies/${formId.innerHTML}`;
@@ -162,11 +162,11 @@ async function updateMovie() {
         }
     });
     if(response.ok) {
-        alert('Успешно');
+        showModalResult('Успешно', true);
         overlay.style.display = 'none';
         getMovies();
     }
-    else alert('Ошибка при изменении фильма');
+    else showModalResult('Ошибка при изменении фильма', false);
 }
 
 function setButtons(){
@@ -207,10 +207,10 @@ async function setDeleteButton(e){
         }
     });
     if(response.ok) {
-        alert('Успешно');
+        showModalResult('Успешно', true);
         getMovies();
     }
-    else alert('Ошибка при удалении фильма');
+    else showModalResult('Ошибка при удалении фильма', false);
 }
 
 async function checkAuth() {
@@ -266,7 +266,7 @@ async function checkAuth() {
     }
 
   } catch (e) {
-    alert("Ошибка аутентификации " + e);
+    showModalResult("Ошибка аутентификации " + e, false);
   }
 
     window.location.href = 'admin_sign_in.html';
@@ -345,4 +345,34 @@ getMovies();
 
 function isInt(str) {
     return !isNaN(str) && !isNaN(parseInt(str));
+}
+
+// Модальное окно для сообщений (универсальное)
+function showModalResult(message, isSuccess = null, onClose = null) {
+    const modal = document.getElementById('modal_result');
+    const msg = document.getElementById('modal_message');
+    const icon = document.getElementById('modal_icon');
+    const close = document.getElementById('modal_close');
+    msg.textContent = message;
+    if (isSuccess === true) {
+        icon.innerHTML = '✔️';
+        icon.className = 'modal__icon success';
+    } else if (isSuccess === false) {
+        icon.innerHTML = '❌';
+        icon.className = 'modal__icon error';
+    } else {
+        icon.innerHTML = '';
+        icon.className = 'modal__icon';
+    }
+    modal.style.display = 'flex';
+    close.onclick = function() {
+        modal.style.display = 'none';
+        if (onClose) onClose();
+    };
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+            if (onClose) onClose();
+        }
+    };
 }

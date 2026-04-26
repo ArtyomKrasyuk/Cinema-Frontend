@@ -17,7 +17,7 @@
                 <div class="sign_in_btn">Войти</div>
                 <div class="sign_up_btn">Регистрация</div>
             </div>
-            <div class="profile" style="display: none;">Личный кабинет</div>
+            <div class="exit" style="display: none;">Выйти</div>
         </div>
     </header>
     <main>
@@ -173,5 +173,13 @@
     <script src="fonts/Roboto-normal.js"></script>
     <script src="fonts/Roboto-bold.js"></script>
     <script src="js/profile.js"></script>
+    <div class="modal" id="modal_result" style="display:none;">
+        <div class="modal__content">
+            <span class="modal__close" id="modal_close">&times;</span>
+            <div class="modal__icon" id="modal_icon"></div>
+            <div class="modal__message" id="modal_message"></div>
+            <div class="modal__actions" id="modal_actions"></div>
+        </div>
+    </div>
 </body>
 </html>

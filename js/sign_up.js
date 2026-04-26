@@ -47,6 +47,36 @@ document.querySelector('.form__btn').onclick = async function(e){
         window.location.href = 'index.html';
     }
     else{
-        alert('Ошибка регистрации');
+        showModalResult('Ошибка регистрации', false);
     }
+}
+
+// Модальное окно для сообщений (универсальное)
+function showModalResult(message, isSuccess = null, onClose = null) {
+    const modal = document.getElementById('modal_result');
+    const msg = document.getElementById('modal_message');
+    const icon = document.getElementById('modal_icon');
+    const close = document.getElementById('modal_close');
+    msg.textContent = message;
+    if (isSuccess === true) {
+        icon.innerHTML = '✔️';
+        icon.className = 'modal__icon success';
+    } else if (isSuccess === false) {
+        icon.innerHTML = '❌';
+        icon.className = 'modal__icon error';
+    } else {
+        icon.innerHTML = '';
+        icon.className = 'modal__icon';
+    }
+    modal.style.display = 'flex';
+    close.onclick = function() {
+        modal.style.display = 'none';
+        if (onClose) onClose();
+    };
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+            if (onClose) onClose();
+        }
+    };
 }

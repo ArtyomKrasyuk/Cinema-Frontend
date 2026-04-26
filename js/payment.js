@@ -220,54 +220,64 @@ async function handlePayment() {
     }
 }
 
+function showModalResult(message, isSuccess) {
+    const modal = document.getElementById('modal_result');
+    const msg = document.getElementById('modal_message');
+    const icon = document.getElementById('modal_icon');
+    const close = document.getElementById('modal_close');
+    msg.textContent = message;
+    icon.innerHTML = isSuccess ? '✔️' : '❌';
+    icon.className = 'modal__icon ' + (isSuccess ? 'success' : 'error');
+    modal.style.display = 'flex';
+    close.onclick = function() {
+        modal.style.display = 'none';
+        if (isSuccess) window.location.href = 'index.html';
+    };
+    // Закрытие по клику вне окна
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+            if (isSuccess) window.location.href = 'index.html';
+        }
+    };
+}
+
 async function startPollingStatus(orderId, btnElement) {
     const pollInterval = 3000; 
-    
     const checkStatus = async () => {
         try {
             const response = await fetchWithAuth(`http://localhost:8000/api/orders/status/${orderId}`, {
                 method: 'GET'
             });
-
             if (!response.ok) throw new Error('Ошибка сети');
-
             const data = await response.json(); 
             const currentStatus = data.status; // Достаем статус из объекта {"status": "..."}
-            
             console.log(`Статус заказа ${orderId}: ${currentStatus}`);
-
             switch (currentStatus) {
                 case Status.CONFIRMED:
-                    alert('Оплата успешно подтверждена!');
-                    window.location.href = 'index.html';
+                    showModalResult('Оплата успешно подтверждена!', true);
                     break;
-
                 case Status.PAYMENT_FAILED:
-                    alert('Ошибка! Платеж отклонен.');
+                    showModalResult('Ошибка! Платеж отклонен.', false);
                     resetButton(btnElement);
                     break;
-
                 case Status.EXPIRED:
-                    alert('Срок оплаты заказа истек.');
+                    showModalResult('Срок оплаты заказа истек.', false);
                     resetButton(btnElement);
                     break;
-
                 case Status.PROCESSING:
                 case Status.CREATED:
-                    // Рекурсивный вызов через 3 секунды
                     setTimeout(checkStatus, pollInterval);
                     break;
-
                 default:
-                    console.warn('Неизвестный статус:', currentStatus);
+                    showModalResult('Неизвестный статус оплаты.', false);
                     setTimeout(checkStatus, pollInterval);
             }
         } catch (error) {
             console.error('Ошибка опроса:', error);
-            setTimeout(checkStatus, 5000); // При ошибке сети ждем чуть дольше
+            setTimeout(checkStatus, 5000);
         }
     };
-
     checkStatus();
 }
 

@@ -107,7 +107,7 @@ async function getCinemas(){
 
         setCinemas();
     }
-    else alert('Ошибка получения кинотеатров');
+    else showModalResult('Ошибка получения кинотеатров', false);
 }
 
 async function getShowtimes(){
@@ -152,7 +152,7 @@ async function getShowtimes(){
 
         setShowtimes();
     }
-    else alert('Ошибка получения киносеансов');
+    else showModalResult('Ошибка получения киносеансов', false);
 }
 
 function setShowtimes(){
@@ -252,12 +252,12 @@ function setChangeButton(e){
 
 async function saveShowtime() {
     if(!isInt(priceInput.value)){
-        alert('Базовая стоимость должна быть положительным числом');
+        showModalResult('Базовая стоимость должна быть положительным числом', false);
         return;
     }
     let basePrice = parseInt(priceInput.value);
     if(basePrice <= 0){
-        alert('Базовая стоимость должна быть положительным числом');
+        showModalResult('Базовая стоимость должна быть положительным числом', false);
         return;
     }
     let data = {
@@ -276,21 +276,21 @@ async function saveShowtime() {
         }
     });
     if(response.ok) {
-        alert('Успешно');
+        showModalResult('Успешно', true);
         overlay.style.display = 'none';
         getShowtimes();
     }
-    else alert('Ошибка при добавлении сеанса');
+    else showModalResult('Ошибка при добавлении сеанса', false);
 }
 
 async function updateShowtime() {
     if(!isInt(priceInput.value)){
-        alert('Базовая стоимость должна быть положительным числом');
+        showModalResult('Базовая стоимость должна быть положительным числом', false);
         return;
     }
     let basePrice = parseInt(priceInput.value);
     if(basePrice <= 0){
-        alert('Базовая стоимость должна быть положительным числом');
+        showModalResult('Базовая стоимость должна быть положительным числом', false);
         return;
     }
     let data = {
@@ -309,11 +309,11 @@ async function updateShowtime() {
         }
     });
     if(response.ok) {
-        alert('Успешно');
+        showModalResult('Успешно', true);
         overlay.style.display = 'none';
         getShowtimes();
     }
-    else alert('Ошибка при изменении сеанса');
+    else showModalResult('Ошибка при изменении сеанса', false);
 }
 
 async function setDeleteButton(e){
@@ -326,10 +326,10 @@ async function setDeleteButton(e){
         }
     });
     if(response.ok) {
-        alert('Успешно');
+        showModalResult('Успешно', true);
         getShowtimes();
     }
-    else alert('Ошибка при удалении сеанса');
+    else showModalResult('Ошибка при удалении сеанса', false);
 }
 
 function isInt(str) {
@@ -440,7 +440,7 @@ async function checkAuth() {
     }
 
   } catch (e) {
-    alert("Ошибка аутентификации " + e);
+    showModalResult("Ошибка аутентификации " + e, false);
   }
 
     window.location.href = 'admin_sign_in.html';
@@ -517,3 +517,32 @@ function logout() {
 
 entrypoint();
 
+// Модальное окно для сообщений (универсальное)
+function showModalResult(message, isSuccess = null, onClose = null) {
+    const modal = document.getElementById('modal_result');
+    const msg = document.getElementById('modal_message');
+    const icon = document.getElementById('modal_icon');
+    const close = document.getElementById('modal_close');
+    msg.textContent = message;
+    if (isSuccess === true) {
+        icon.innerHTML = '✔️';
+        icon.className = 'modal__icon success';
+    } else if (isSuccess === false) {
+        icon.innerHTML = '❌';
+        icon.className = 'modal__icon error';
+    } else {
+        icon.innerHTML = '';
+        icon.className = 'modal__icon';
+    }
+    modal.style.display = 'flex';
+    close.onclick = function() {
+        modal.style.display = 'none';
+        if (onClose) onClose();
+    };
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+            if (onClose) onClose();
+        }
+    };
+}
