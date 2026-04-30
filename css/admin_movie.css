@@ -68,7 +68,7 @@ header{
 /*--------------------------main------------------------------------------*/
 
 .container{
-    max-width: 1400px;
+    max-width: 800px;
     padding: 0px 15px;
     width: 100%;
     margin: 0 auto;
@@ -346,4 +346,31 @@ footer{
     font-size: 20px;
     color: #1F2937;
     margin-bottom: 8px;
+}
+
+/* Добавить стили для чекбоксов жанров */
+.form__genres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.form__genre_label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 15px;
+    background: #f3f3f3;
+    border-radius: 5px;
+    padding: 3px 8px;
+    cursor: pointer;
+    user-select: none;
+}
+.form__genre_checkbox {
+    accent-color: #2b7cff;
+}
+.form__error {
+    color: #d32f2f;
+    font-size: 14px;
+    margin-bottom: 10px;
 }

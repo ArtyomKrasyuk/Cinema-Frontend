@@ -22,21 +22,22 @@ let formAdd = document.getElementById('form__add_btn');
 let formChange = document.getElementById('form__change_btn');
 let formId = document.getElementById('form__movie_id');
 let movieTitle = document.getElementById('movie_title');
-let movieGenres = document.getElementById('movie_genres');
 let movieDuration = document.getElementById('movie_duration');
 let movieURL = document.getElementById('movie_url');
 let movieDesc = document.getElementById('movie_desc');
+let genresContainer = document.getElementById('movie_genres_container');
 
-add.onclick = function(e){
+add.onclick = async function(e){
     formId.innerHTML = '';
     movieTitle.value = '';
-    movieGenres.value = '';
     movieDuration.value = '';
     movieURL.value = '';
     movieDesc.value = '';
     formAdd.style.display = 'block';
     formChange.style.display = 'none';
     overlay.style.display = 'block';
+    await loadGenres();
+    renderGenresCheckboxes();
 }
 
 exit.onclick = function(e){
@@ -106,7 +107,7 @@ function setMovies(){
 async function saveMovie() {
     let data = {
         'title': movieTitle.value,
-        'genres': movieGenres.value.split('; '),
+        'genres': getSelectedGenres(),
         'duration': movieDuration.value,
         'poster': movieURL.value,
         'description': movieDesc.value
@@ -139,7 +140,7 @@ async function saveMovie() {
 async function updateMovie() {
     let data = {
         'title': movieTitle.value,
-        'genres': movieGenres.value.split('; '),
+        'genres': getSelectedGenres(),
         'duration': movieDuration.value,
         'poster': movieURL.value,
         'description': movieDesc.value
@@ -186,10 +187,10 @@ function setChangeButton(e){
     movies.forEach(movie =>{
         if(movie.movieId == id){
             movieTitle.value = movie.title;
-            movieGenres.value = movie.genres.join('; ');
             movieDuration.value = movie.duration;
             movieURL.value = movie.poster;
             movieDesc.value = movie.description;
+            loadGenres().then(() => renderGenresCheckboxes(movie.genres));
         }
     });
     formAdd.style.display = 'none';
@@ -376,3 +377,48 @@ function showModalResult(message, isSuccess = null, onClose = null) {
         }
     };
 }
+
+// --- Жанры ---
+let genresList = [];
+
+async function loadGenres() {
+    let url = `http://127.0.0.1:${port}/api/genres`;
+    let response = await fetchWithAuth(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        }
+    });
+    if (response.ok) {
+        let body = await response.text();
+        genresList = JSON.parse(body).genres;
+        renderGenresCheckboxes();
+    } else {
+        genresList = [];
+        genresContainer.innerHTML = '<div class="form__error">Ошибка загрузки жанров</div>';
+    }
+}
+
+function renderGenresCheckboxes(selectedGenres = []) {
+    if (!genresContainer) return;
+    genresContainer.innerHTML = '';
+    genresList.forEach(genre => {
+        const id = `genre_checkbox_${genre}`;
+        const checked = selectedGenres.includes(genre) ? 'checked' : '';
+        genresContainer.innerHTML += `
+            <label class="form__genre_label">
+                <input type="checkbox" class="form__genre_checkbox" value="${genre}" id="${id}" ${checked}>
+                ${genre}
+            </label>
+        `;
+    });
+}
+
+function getSelectedGenres() {
+    const checkboxes = genresContainer.querySelectorAll('.form__genre_checkbox:checked');
+    return Array.from(checkboxes).map(cb => cb.value);
+}
+
+// --- END Жанры ---
+
+loadGenres();
