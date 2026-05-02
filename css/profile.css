@@ -351,6 +351,19 @@ header{
     margin-left: 8px;
 }
 
+footer{
+    height: 65px;
+    background-color: #253246;
+}
+
+.footer__text{
+    color: #fff;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 400;
+    padding-top: 22px;
+}
+
 /*--------------------------modal----------------------------------------*/
 
 .modal {

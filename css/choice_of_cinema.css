@@ -105,6 +105,16 @@ header{
     margin: 0 auto;
 }
 
+.return{
+    padding-top: 20px;
+    color: #858282;
+    font-size: 14px;
+}
+
+.return:hover{
+    cursor: pointer;
+}
+
 .main__title{
     padding-top: 40px;
     font-weight: 600;

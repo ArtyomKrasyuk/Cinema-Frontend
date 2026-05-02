@@ -106,6 +106,16 @@ header{
     margin: 0 auto;
 }
 
+.return{
+    padding-top: 20px;
+    color: #858282;
+    font-size: 14px;
+}
+
+.return:hover{
+    cursor: pointer;
+}
+
 .content{
     width: 100%;
     display: flex;
